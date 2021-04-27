@@ -1,15 +1,14 @@
 pluginManagement {
     repositories {
         google()
-        jcenter()
+        //jcenter()
         gradlePluginPortal()
         mavenCentral()
     }
     
 }
-rootProject.name = "untitled"
 
+rootProject.name = "untitled"
 
 include(":androidApp")
 include(":shared")
-

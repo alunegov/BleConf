@@ -8,7 +8,8 @@ import me.alexander.shared.sensors.store.SensorsStore.State
 internal interface SensorsStore : Store<Intent, State, Nothing> {
 
     sealed class Intent {
-        object First: Intent()
+        object Refresh: Intent()
+        data class ToggleEnable(val id: String): Intent()
     }
 
     data class State(

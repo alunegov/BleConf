@@ -3,11 +3,27 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
-    id("kotlin-android-extensions")
 }
 
 group = "me.alexander"
 version = "1.0"
+
+android {
+    compileSdk = 30
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+    defaultConfig {
+        minSdk = 24
+        targetSdk = 30
+    }
+    configurations {
+        create("androidTestApi")
+        create("androidTestDebugApi")
+        create("androidTestReleaseApi")
+        create("testApi")
+        create("testDebugApi")
+        create("testReleaseApi")
+    }
+}
 
 kotlin {
     android()
@@ -21,11 +37,12 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("com.arkivanov.decompose:decompose:0.1.9")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3-native-mt!!")
+                implementation("com.arkivanov.decompose:decompose:0.2.4")
                 implementation("com.arkivanov.mvikotlin:mvikotlin:2.0.2")
                 implementation("com.arkivanov.mvikotlin:mvikotlin-extensions-coroutines:2.0.2")
-                implementation("com.juul.kable:core:0.4.1")
-                //implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2")
+                implementation("com.arkivanov.mvikotlin:rx:2.0.2")
+                implementation("com.juul.kable:core:0.5.0")
             }
         }
         val commonTest by getting {
@@ -34,28 +51,15 @@ kotlin {
                 implementation(kotlin("test-annotations-common"))
             }
         }
-        val androidMain by getting {
-            dependencies {
-                implementation("com.google.android.material:material:1.2.1")
-            }
-        }
+        val androidMain by getting
         val androidTest by getting {
             dependencies {
                 implementation(kotlin("test-junit"))
-                implementation("junit:junit:4.13")
+                implementation("junit:junit:4.13.2")
             }
         }
         val iosMain by getting
         val iosTest by getting
-    }
-}
-
-android {
-    compileSdkVersion(29)
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    defaultConfig {
-        minSdkVersion(24)
-        targetSdkVersion(29)
     }
 }
 
