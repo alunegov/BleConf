@@ -38,11 +38,11 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3-native-mt!!")
-                implementation("com.arkivanov.decompose:decompose:0.2.4")
-                implementation("com.arkivanov.mvikotlin:mvikotlin:2.0.2")
-                implementation("com.arkivanov.mvikotlin:mvikotlin-extensions-coroutines:2.0.2")
-                implementation("com.arkivanov.mvikotlin:rx:2.0.2")
-                implementation("com.juul.kable:core:0.5.0")
+                implementation(libs.mvikotlin.core)
+                implementation(libs.mvikotlin.coroutines)
+                implementation(libs.mvikotlin.rx)
+                implementation(libs.decompose.core)
+                implementation(libs.kable.core)
             }
         }
         val commonTest by getting {

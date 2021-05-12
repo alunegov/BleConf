@@ -30,11 +30,11 @@ dependencies {
     //
     implementation("androidx.navigation:navigation-compose:1.0.0-alpha10")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3-native-mt!!")
-    implementation("com.arkivanov.mvikotlin:mvikotlin:2.0.2")
-    implementation("com.arkivanov.mvikotlin:mvikotlin-main:2.0.2")
-    implementation("com.arkivanov.decompose:decompose:0.2.4")
-    implementation("com.arkivanov.decompose:extensions-compose-jetpack:0.2.4")
-    implementation("com.juul.kable:core:0.5.0")
+    implementation(libs.mvikotlin.core)
+    implementation(libs.mvikotlin.main)
+    implementation(libs.decompose.core)
+    implementation(libs.decompose.compose.jetpack)
+    implementation(libs.kable.core)
 }
 
 android {
@@ -65,6 +65,6 @@ android {
         useIR = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.0.0-beta06"
+        kotlinCompilerExtensionVersion = libs.versions.compose.get()
     }
 }
