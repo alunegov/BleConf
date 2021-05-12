@@ -1,5 +1,7 @@
 plugins {
     id("com.android.application")
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
     kotlin("android")
 }
 
@@ -35,6 +37,9 @@ dependencies {
     implementation(libs.decompose.core)
     implementation(libs.decompose.compose.jetpack)
     implementation(libs.kable.core)
+    implementation(platform("com.google.firebase:firebase-bom:28.0.0"))
+    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-crashlytics-ktx")
 }
 
 android {
