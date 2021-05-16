@@ -37,7 +37,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3-native-mt!!")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0-native-mt!!")
                 implementation(libs.mvikotlin.core)
                 implementation(libs.mvikotlin.coroutines)
                 implementation(libs.mvikotlin.rx)

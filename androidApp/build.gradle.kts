@@ -10,28 +10,28 @@ version = "1.0"
 
 dependencies {
     implementation(project(":shared"))
-    implementation("androidx.appcompat:appcompat:1.2.0")
+    implementation("androidx.appcompat:appcompat:1.3.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
-    implementation("androidx.compose.ui:ui:1.0.0-beta06")
+    implementation("androidx.compose.ui:ui:1.0.0-beta07")
     // Tooling support (Previews, etc.)
-    implementation("androidx.compose.ui:ui-tooling:1.0.0-beta06")
+    implementation("androidx.compose.ui:ui-tooling:${libs.versions.compose.get()}")
     // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
-    implementation("androidx.compose.foundation:foundation:1.0.0-beta06")
+    implementation("androidx.compose.foundation:foundation:${libs.versions.compose.get()}")
     // Material Design
-    implementation("androidx.compose.material:material:1.0.0-beta06")
+    implementation("androidx.compose.material:material:${libs.versions.compose.get()}")
     // Material design icons
-    implementation("androidx.compose.material:material-icons-core:1.0.0-beta06")
-    implementation("androidx.compose.material:material-icons-extended:1.0.0-beta06")
+    implementation("androidx.compose.material:material-icons-core:${libs.versions.compose.get()}")
+    implementation("androidx.compose.material:material-icons-extended:${libs.versions.compose.get()}")
     // Integration with activities
-    implementation("androidx.activity:activity-compose:1.3.0-alpha07")
+    implementation("androidx.activity:activity-compose:1.3.0-alpha08")
     // Integration with ViewModels
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha04")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha05")
     // Integration with observables
-    implementation("androidx.compose.runtime:runtime-livedata:1.0.0-beta06")
-    implementation("androidx.compose.runtime:runtime-rxjava2:1.0.0-beta06")
-    //
-    implementation("androidx.navigation:navigation-compose:1.0.0-alpha10")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3-native-mt!!")
+    //implementation("androidx.compose.runtime:runtime-livedata:${libs.versions.compose.get()}")
+    //implementation("androidx.compose.runtime:runtime-rxjava2:${libs.versions.compose.get()}")
+    // Integration with Navigation
+    implementation("androidx.navigation:navigation-compose:2.4.0-alpha01")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0-native-mt!!")
     implementation(libs.mvikotlin.core)
     implementation(libs.mvikotlin.main)
     implementation(libs.decompose.core)
@@ -40,6 +40,10 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:28.0.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-crashlytics-ktx")
+
+    testImplementation(kotlin("test"))
+    testImplementation(kotlin("test-junit"))
+    testImplementation("org.mockito.kotlin:mockito-kotlin:3.2.0")
 }
 
 android {
