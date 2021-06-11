@@ -2,15 +2,43 @@ package me.alexander.androidApp
 
 import com.benasher44.uuid.uuidFrom
 import com.juul.kable.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
+import me.alexander.androidApp.domain.Conf
 import me.alexander.androidApp.domain.Sensor
 import org.mockito.kotlin.*
+import java.nio.ByteBuffer
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 internal const val STATES_CHANN1_CH_UUID = "4834cad6-5043-4ed9-0000-000000000001"
 
-class BleConnImplTest {
+/*class BleConnImplTest {
+    private val scannerMock = mock<Scanner>()
+    private val sut = BleConnImpl(scannerMock)
+
+    @Test
+    fun scanAndGetTest() {
+        val scope = CoroutineScope(EmptyCoroutineContext)
+
+        sut.startScan(scope)
+
+        sut.stopScan()
+
+        //val serverConn = sut.getServerConn("", scope)
+    }
+
+    @Test
+    fun stopScanTest_StopViaScope() {
+        val scope = CoroutineScope(EmptyCoroutineContext)
+        sut.startScan(scope)
+        scope.cancel()
+    }
+}*/
+
+class BleServerConnImplTest {
     private val periphMock = mock<Peripheral>()
     private val sut = BleServerConnImpl("dummy", periphMock)
 
@@ -97,5 +125,41 @@ class BleConnImplTest {
         assertEquals(1, history.size)
         assertEquals(1, history[0].time)
         assertEquals(255, history[0].en)
+    }
+
+    @Test
+    fun getConfTest() {
+        val testTime = System.currentTimeMillis() / 1000
+        val testTimeRaw = ByteBuffer.allocate(java.lang.Long.BYTES).putLong(testTime).array().reversedArray()
+
+        periphMock.stub {
+            onBlocking {
+                read(argThat<Characteristic> { characteristicUuid == uuidFrom(CONF_TIME_CH_UUID) } )
+            } doReturn testTimeRaw
+        }
+
+        val conf = runBlocking {
+            sut.getConf()
+        }
+
+        assertEquals(testTime, conf.time)
+    }
+
+    @Test
+    fun setTimeTest() {
+        val testTime = System.currentTimeMillis() / 1000
+        val testTimeRaw = ByteBuffer.allocate(java.lang.Long.BYTES).putLong(testTime).array().reversedArray()
+
+        runBlocking {
+            sut.setTime(Conf(time = testTime))
+        }
+
+        verifyBlocking(periphMock) {
+            write(
+                any(),
+                argThat { this contentEquals testTimeRaw },
+                any(),
+            )
+        }
     }
 }

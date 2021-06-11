@@ -59,21 +59,21 @@ internal const val CONF_COEFF_CH_UUID = "95f78395-3a98-45a3-9cc7-d71cfded4ff7"
 internal const val STATES_SERVICE_UUID = "4834cad6-5043-4ed9-8d85-a277e72c8178"  // ref sensor
 //internal const val STATES_SENSORx_CH_UUID
 
-object BleConnImpl : BleConn {
-    var logger: Logger? = null
-
+class BleConnImpl(
+    val scanner: Scanner = Scanner(),
+    val logger: Logger? = null,
+) : BleConn {
     private val _intServers = hashMapOf<String, IntServer>()
 
     private val _servers = MutableStateFlow(ServersModel())
     override val servers: StateFlow<ServersModel> = _servers.asStateFlow()
 
-    private val _scanner = Scanner()
     private var _scanJob: Job? = null
 
     override fun startScan(scope: CoroutineScope) {
         logger?.d(TAG, "startScan")
 
-        if (_scanJob != null) {
+        if (_scanJob?.isActive == true) {
             logger?.d(TAG, "already scanning")
             return
         }
@@ -82,7 +82,7 @@ object BleConnImpl : BleConn {
             logger?.d(TAG, "startScan launch")
 
             try {
-                _scanner
+                scanner
                     .advertisements
                     .filter { it.uuids.contains(uuidFrom(CONF_SERVICE_UUID)) }
                     .collect { adv ->
@@ -118,9 +118,10 @@ object BleConnImpl : BleConn {
     override fun getServerConn(id: String, scope: CoroutineScope): BleServerConn {
         logger?.d(TAG, "getServerConn")
         // TODO: check id presence
+        val adv = _intServers[id]?.adv!!
         return BleServerConnImpl(
-            _intServers[id]?.adv!!.name ?: "noname",
-            scope.peripheral(_intServers[id]?.adv!!),
+            adv.name ?: "noname",
+            scope.peripheral(adv),
             logger,
         )
     }

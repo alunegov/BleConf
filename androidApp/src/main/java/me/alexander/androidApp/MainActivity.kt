@@ -2,11 +2,9 @@ package me.alexander.androidApp
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.clickable
@@ -23,7 +21,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -34,15 +31,12 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.*
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import me.alexander.androidApp.domain.ServersModel
 import java.util.*
 
 private const val TAG = "MainActivity"
 
-private const val MY_PERMISSIONS_REQUEST_LOCATION = 50005
-
 class MainActivity : AppCompatActivity() {
-    private var _isGranted = mutableStateOf(false)
+    private val _isGranted = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,17 +46,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         when {
-            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED -> _isGranted.value = true
+            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED -> _isGranted.value = true
             else -> requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
 
-        BleConnImpl.logger = LoggerImpl
+        //val bleConn = BleConnImpl(logger = LoggerImpl)
+        val bleConn = BleConnStub
 
         setContent {
             MaterialTheme(
                 //colors = darkColors(),
             ) {
-                Root(_isGranted, BleConnImpl)
+                Root(_isGranted, bleConn)
             }
         }
     }

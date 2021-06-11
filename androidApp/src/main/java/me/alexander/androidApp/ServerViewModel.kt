@@ -101,8 +101,8 @@ class ServerViewModel(
 
                 ensureConnected()
                 bleServerConn.setSensorsEnability(newSensors)
-
-                // TODO: reloadSensors, [id].state?
+                // sensors[id].state might change
+                _sensors.value = SensorsModel(bleServerConn.getSensors())
             } catch (e: Exception) {
                 Log.d(TAG, e.toString())
                 // TODO: reloadSensors?
