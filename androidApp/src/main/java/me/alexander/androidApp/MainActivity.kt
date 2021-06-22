@@ -39,6 +39,9 @@ class MainActivity : AppCompatActivity() {
     private val _isGranted = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // apply the actual theme (instead of SplashTheme)
+        setTheme(R.style.AppTheme)
+
         super.onCreate(savedInstanceState)
 
         val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
