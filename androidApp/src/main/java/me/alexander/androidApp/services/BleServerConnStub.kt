@@ -20,9 +20,9 @@ class BleServerConnStub(
         HistoryEvent(System.currentTimeMillis() - 13000, 0b11000001),
     )
 
-    private var conf = Conf(
-        time = System.currentTimeMillis(),
-    )
+    private var conf = Conf()
+
+    private var time = System.currentTimeMillis()
 
     override suspend fun connect() {
         // nop
@@ -55,11 +55,13 @@ class BleServerConnStub(
 
     override suspend fun getConf(): Conf = conf
 
-    override suspend fun setTime(conf: Conf) {
-        this.conf = this.conf.copy(time = conf.time)
+    override suspend fun setConf(conf: Conf) {
+        TODO("Not yet implemented")
     }
 
-    override suspend fun setConfOnly(conf: Conf) {
-        TODO("Not yet implemented")
+    override suspend fun getTime(): Long = time
+
+    override suspend fun setTime(time: Long) {
+        this.time = time
     }
 }

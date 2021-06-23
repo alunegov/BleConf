@@ -10,6 +10,7 @@ import me.alexander.androidApp.domain.Conf
 import me.alexander.androidApp.domain.HistoryEvent
 import me.alexander.androidApp.domain.Sensor
 import me.alexander.androidApp.services.BleConn
+import kotlin.math.abs
 
 private const val TAG = "ServerViewModel"
 
@@ -28,6 +29,11 @@ data class ConfModel(
     val errorText: String = "",
 )
 
+data class TimeModel(
+    val time: Long = 0,
+    val errorText: String = "",
+)
+
 class ServerViewModel(
     private val bleConn: BleConn,
     private val address: String,
@@ -40,6 +46,9 @@ class ServerViewModel(
 
     private val _conf = MutableStateFlow(ConfModel())
     val conf = _conf.asStateFlow()
+
+    private val _time = MutableStateFlow(TimeModel())
+    val time = _time.asStateFlow()
 
     private val _bleDispatchers = Dispatchers.IO
     private val _bleScope = CoroutineScope(viewModelScope.coroutineContext + _bleDispatchers)
@@ -87,7 +96,7 @@ class ServerViewModel(
         Log.d(TAG, "reloadSensors post")
     }
 
-    fun toggleEnabled(id: String, en: Boolean) {
+    fun setEnabled(id: String, en: Boolean) {
         Log.d(TAG, "toggleEnabled for $id to $en")
         _bleScope.launch {
             val model = _sensors.value
@@ -128,6 +137,7 @@ class ServerViewModel(
     }
 
     fun reloadConf() {
+        Log.d(TAG, "reloadConf")
         _bleScope.launch {
             try {
                 ensureConnected()
@@ -137,37 +147,65 @@ class ServerViewModel(
                 _conf.value = ConfModel(errorText = e.toString())
             }
         }
+        Log.d(TAG, "reloadConf post")
     }
 
+    fun setConf(conf: Conf) {
+        Log.d(TAG, "setConf")
+        _bleScope.launch {
+            val model = _conf.value
+
+            try {
+                _conf.value = model.copy(conf = conf)
+
+                ensureConnected()
+                bleServerConn.setConf(conf)
+            } catch (e: Exception) {
+                Log.d(TAG, e.toString())
+                // TODO: reloadConf?
+                _conf.value = model.copy(errorText = e.toString())
+            }
+        }
+        Log.d(TAG, "setConf post")
+    }
+
+    fun reloadTime() {
+        Log.d(TAG, "reloadTime")
+        _bleScope.launch {
+            try {
+                ensureConnected()
+                _time.value = TimeModel(bleServerConn.getTime())
+            } catch (e: Exception) {
+                Log.d(TAG, e.toString())
+                _time.value = TimeModel(errorText = e.toString())
+            }
+        }
+        Log.d(TAG, "reloadTime post")
+    }
+
+    /**
+     * Синхронизирует время на сервере, используя текущее время (телефона). Синхронизация выполняется только если
+     * время отличается более чем на секунду.
+     */
     fun syncTime() {
+        Log.d(TAG, "syncTime")
         _bleScope.launch {
-            val model = _conf.value
-
-            _conf.value = model.copy(conf = model.conf.copy(time = System.currentTimeMillis() / 1000))
+            val model = _time.value
 
             try {
+                val ourTime = System.currentTimeMillis() / 1000
+
+                _time.value = model.copy(time = ourTime)
+
                 ensureConnected()
-                bleServerConn.setTime(model.conf)
+                if (abs(bleServerConn.getTime() - ourTime) > 1) {
+                    bleServerConn.setTime(ourTime)
+                }
             } catch (e: Exception) {
                 Log.d(TAG, e.toString())
-                // TODO: reloadConf?
-                _conf.value = model.copy(errorText = e.toString())
+                _time.value = model.copy(errorText = e.toString())
             }
         }
-    }
-
-    fun setConfOnly() {
-        _bleScope.launch {
-            val model = _conf.value
-
-            try {
-                ensureConnected()
-                bleServerConn.setConfOnly(model.conf)
-            } catch (e: Exception) {
-                Log.d(TAG, e.toString())
-                // TODO: reloadConf?
-                _conf.value = model.copy(errorText = e.toString())
-            }
-        }
+        Log.d(TAG, "syncTime post")
     }
 }

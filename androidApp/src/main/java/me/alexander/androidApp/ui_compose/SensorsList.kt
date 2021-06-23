@@ -1,5 +1,6 @@
 package me.alexander.androidApp.ui_compose
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,11 +20,14 @@ fun SensorsList(
     viewModel: ServerViewModel,
     navController: NavController,
 ) {
-    val state = viewModel.sensors.collectAsState()
+    val sensorsState = viewModel.sensors.collectAsState()
+    val timeState = viewModel.time.collectAsState()
 
     DisposableEffect(true) {
         //Log.d(TAG, "SensorsList DisposableEffect")
         viewModel.reloadSensors()
+        // синхронизируем время. на остальных экранах сервера не делаем, п.ч. этот экран будет загружен в любом случае
+        viewModel.syncTime()
         onDispose {
             //Log.d(TAG, "SensorsList DisposableEffect onDispose")
         }
@@ -32,25 +36,39 @@ fun SensorsList(
     Column {
         ServerAppBar(viewModel.serverName, navController)
 
-        val model = state.value
+        val sensorsModel = sensorsState.value
+        val timeModel = timeState.value
 
-        if (model.errorText.isNotEmpty()) {
-            Text(
-                text = model.errorText,
-                color = Color.Red,
-            )
+        if (sensorsModel.errorText.isNotEmpty() || timeModel.errorText.isNotEmpty()) {
+            Column {
+                if (sensorsModel.errorText.isNotEmpty()) {
+                    Text(
+                        text = sensorsModel.errorText,
+                        color = Color.Red,
+                    )
+                }
+
+                if (timeModel.errorText.isNotEmpty()) {
+                    Text(
+                        text = timeModel.errorText,
+                        color = Color.Red,
+                    )
+                }
+            }
         }
 
         LazyColumn(
             modifier = Modifier.weight(1.0f),
         ) {
-            items(model.sensors) { sensor ->
+            items(sensorsModel.sensors) { sensor ->
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(8.dp, 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp, 8.dp),
                 ) {
                     Checkbox(
                         checked = sensor.enabled,
-                        onCheckedChange = { checked -> viewModel.toggleEnabled(sensor.id, checked) },
+                        onCheckedChange = { checked -> viewModel.setEnabled(sensor.id, checked) },
                     )
 
                     Spacer(Modifier.size(16.dp))

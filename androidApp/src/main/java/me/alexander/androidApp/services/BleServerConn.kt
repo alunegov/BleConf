@@ -19,7 +19,19 @@ interface BleServerConn {
 
     suspend fun getConf(): Conf
 
-    suspend fun setTime(conf: Conf)
+    suspend fun setConf(conf: Conf)
 
-    suspend fun setConfOnly(conf: Conf)
+    /**
+     * Возвращает время сервера.
+     *
+     * @return Время в секундах (Unix time)
+     */
+    suspend fun getTime(): Long
+
+    /**
+     * Задаёт время сервера.
+     *
+     * @param time Время в секундах (Unix time)
+     */
+    suspend fun setTime(time: Long)
 }

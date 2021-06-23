@@ -103,6 +103,21 @@ class BleServerConnImplTest {
 
     @Test
     fun getConfTest() {
+        /*periphMock.stub {
+            onBlocking {
+                read(argThat<Characteristic> { characteristicUuid == uuidFrom(CONF_TIME_CH_UUID) } )
+            } doReturn testTimeRaw
+        }*/
+
+        val conf = runBlocking {
+            sut.getConf()
+        }
+
+        assertEquals(0, conf.dummy)
+    }
+
+    @Test
+    fun getTimeTest() {
         val testTime = System.currentTimeMillis() / 1000
         val testTimeRaw = ByteBuffer.allocate(java.lang.Long.BYTES).putLong(testTime).array().reversedArray()
 
@@ -112,11 +127,11 @@ class BleServerConnImplTest {
             } doReturn testTimeRaw
         }
 
-        val conf = runBlocking {
-            sut.getConf()
+        val time = runBlocking {
+            sut.getTime()
         }
 
-        assertEquals(testTime, conf.time)
+        assertEquals(testTime, time)
     }
 
     @Test
@@ -125,7 +140,7 @@ class BleServerConnImplTest {
         val testTimeRaw = ByteBuffer.allocate(java.lang.Long.BYTES).putLong(testTime).array().reversedArray()
 
         runBlocking {
-            sut.setTime(Conf(time = testTime))
+            sut.setTime(testTime)
         }
 
         verifyBlocking(periphMock) {

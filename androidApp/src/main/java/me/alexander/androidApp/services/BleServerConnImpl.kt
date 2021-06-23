@@ -6,7 +6,6 @@ import com.benasher44.uuid.uuidFrom
 import com.juul.kable.*
 import kotlinx.coroutines.*
 import me.alexander.androidApp.domain.*
-import me.alexander.androidApp.services.BleServerConn
 import java.nio.ByteBuffer
 
 private const val TAG = "BleServerConnImpl"
@@ -127,26 +126,32 @@ class BleServerConnImpl(
     override suspend fun getConf(): Conf {
         logger?.d(TAG, "getConf")
 
-        val timeRaw = periph.read(characteristicOf(CONF_SERVICE_UUID, CONF_TIME_CH_UUID)).also { it.reverse() }
-        val time = ByteBuffer.wrap(timeRaw).getLong()
-
         //val confRaw = periph.read(characteristicOf(CONF_SERVICE_UUID, CONF_CONF_CH_UUID))
         //val dummy = ByteBuffer.wrap(confRaw).getInt()
         val dummy = 0
 
-        return Conf(time, dummy)
+        return Conf(dummy)
     }
 
-    override suspend fun setTime(conf: Conf) {
-        logger?.d(TAG, "setTime to ${conf.time}")
-        val timeRaw = ByteBuffer.allocate(java.lang.Long.BYTES).putLong(conf.time).array().also { it.reverse() }
-        periph.write(characteristicOf(CONF_SERVICE_UUID, CONF_TIME_CH_UUID), timeRaw, WriteType.WithResponse)
-    }
-
-    override suspend fun setConfOnly(conf: Conf) {
+    override suspend fun setConf(conf: Conf) {
         logger?.d(TAG, "setConf")
         // TODO: encode conf
         //val confRaw = ByteBuffer.allocate(1).array()
         //periph.write(characteristicOf(CONF_SERVICE_UUID, CONF_CONF_CH_UUID), confRaw, WriteType.WithResponse)
+    }
+
+    override suspend fun getTime(): Long {
+        logger?.d(TAG, "getTime")
+
+        val timeRaw = periph.read(characteristicOf(CONF_SERVICE_UUID, CONF_TIME_CH_UUID)).also { it.reverse() }
+        val time = ByteBuffer.wrap(timeRaw).getLong()
+
+        return time
+    }
+
+    override suspend fun setTime(time: Long) {
+        logger?.d(TAG, "setTime to $time")
+        val timeRaw = ByteBuffer.allocate(java.lang.Long.BYTES).putLong(time).array().also { it.reverse() }
+        periph.write(characteristicOf(CONF_SERVICE_UUID, CONF_TIME_CH_UUID), timeRaw, WriteType.WithResponse)
     }
 }
