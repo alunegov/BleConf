@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import me.alexander.androidApp.domain.Conf
 import me.alexander.androidApp.domain.HistoryEvent
 import me.alexander.androidApp.domain.Sensor
+import me.alexander.androidApp.services.BleConn
 
 private const val TAG = "ServerViewModel"
 
