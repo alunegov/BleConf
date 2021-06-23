@@ -63,6 +63,8 @@ fun ServerConf(
         ) {
             Text(Date(timeModel.time * 1000).toString())
 
+            Text(confModel.conf.toString())
+
             Button(onClick = { viewModel.setConf(Conf()) }) {
                 Text("SetConf")
             }

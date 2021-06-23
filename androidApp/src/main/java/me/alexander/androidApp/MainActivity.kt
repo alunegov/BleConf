@@ -51,9 +51,7 @@ class MainActivity : AppCompatActivity() {
         //val bleConn = BleConnStub
 
         setContent {
-            MaterialTheme(
-                //colors = darkColors(),
-            ) {
+            MaterialTheme {
                 Root(_isGranted, bleConn)
             }
         }

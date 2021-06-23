@@ -7,6 +7,7 @@ import com.juul.kable.*
 import kotlinx.coroutines.*
 import me.alexander.androidApp.domain.*
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 private const val TAG = "BleServerConnImpl"
 
@@ -17,7 +18,7 @@ internal const val CONF_ENABLED_CH_UUID = "95f78395-3a98-45a3-9cc7-d71cfded4f17"
 // код ble-характеристики истории изменений (кодируется в строку, только чтение)
 internal const val CONF_UPDATES_CH_UUID = "95f78395-3a98-45a3-9cc7-d71cfded4f27"
 internal const val CONF_TIME_CH_UUID = "95f78395-3a98-45a3-9cc7-d71cfded4f37"
-//internal const val CONF_CONF_CH_UUID = "95f78395-3a98-45a3-9cc7-d71cfded4f47"
+internal const val CONF_CONF_CH_UUID = "95f78395-3a98-45a3-9cc7-d71cfded4f47"
 internal const val CONF_COEFF_CH_UUID = "95f78395-3a98-45a3-9cc7-d71cfded4ff7"
 
 // код ble-сервиса оповещения
@@ -126,32 +127,41 @@ class BleServerConnImpl(
     override suspend fun getConf(): Conf {
         logger?.d(TAG, "getConf")
 
-        //val confRaw = periph.read(characteristicOf(CONF_SERVICE_UUID, CONF_CONF_CH_UUID))
-        //val dummy = ByteBuffer.wrap(confRaw).getInt()
-        val dummy = 0
+        val confRaw = periph.read(characteristicOf(CONF_SERVICE_UUID, CONF_CONF_CH_UUID))
 
-        return Conf(dummy)
+        return ByteBuffer.wrap(confRaw).order(ByteOrder.LITTLE_ENDIAN).let {
+            val dummy1 = it.getInt()
+            val dummy2 = it.getInt()
+
+            Conf(dummy1, dummy2)
+        }
     }
 
     override suspend fun setConf(conf: Conf) {
         logger?.d(TAG, "setConf")
+
         // TODO: encode conf
-        //val confRaw = ByteBuffer.allocate(1).array()
-        //periph.write(characteristicOf(CONF_SERVICE_UUID, CONF_CONF_CH_UUID), confRaw, WriteType.WithResponse)
+        val confRaw = ByteBuffer.allocate(4 + 4).order(ByteOrder.LITTLE_ENDIAN)
+            .putInt(conf.dummy1)
+            .putInt(conf.dummy2)
+            .array()
+
+        periph.write(characteristicOf(CONF_SERVICE_UUID, CONF_CONF_CH_UUID), confRaw, WriteType.WithResponse)
     }
 
     override suspend fun getTime(): Long {
         logger?.d(TAG, "getTime")
 
-        val timeRaw = periph.read(characteristicOf(CONF_SERVICE_UUID, CONF_TIME_CH_UUID)).also { it.reverse() }
-        val time = ByteBuffer.wrap(timeRaw).getLong()
+        val timeRaw = periph.read(characteristicOf(CONF_SERVICE_UUID, CONF_TIME_CH_UUID))
 
-        return time
+        return ByteBuffer.wrap(timeRaw).order(ByteOrder.LITTLE_ENDIAN).getLong()
     }
 
     override suspend fun setTime(time: Long) {
         logger?.d(TAG, "setTime to $time")
-        val timeRaw = ByteBuffer.allocate(java.lang.Long.BYTES).putLong(time).array().also { it.reverse() }
+
+        val timeRaw = ByteBuffer.allocate(java.lang.Long.BYTES).order(ByteOrder.LITTLE_ENDIAN).putLong(time).array()
+
         periph.write(characteristicOf(CONF_SERVICE_UUID, CONF_TIME_CH_UUID), timeRaw, WriteType.WithResponse)
     }
 }

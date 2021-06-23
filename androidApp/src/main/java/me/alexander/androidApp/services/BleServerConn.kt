@@ -24,14 +24,14 @@ interface BleServerConn {
     /**
      * Возвращает время сервера.
      *
-     * @return Время в секундах (Unix time)
+     * @return Число секунд с 1 января 1970 (Unix Epoch)
      */
     suspend fun getTime(): Long
 
     /**
      * Задаёт время сервера.
      *
-     * @param time Время в секундах (Unix time)
+     * @param time Число секунд с 1 января 1970 (Unix Epoch)
      */
     suspend fun setTime(time: Long)
 }
