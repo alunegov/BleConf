@@ -2,7 +2,7 @@
 compose = "1.0.0-beta09"
 mvikotlin = "2.0.3"
 decompose = "0.2.6"
-kable = "0.5.1"
+kable = "0.6.0"
 
 [libraries]
 mvikotlin-core = { module = "com.arkivanov.mvikotlin:mvikotlin", version.ref = "mvikotlin" }
