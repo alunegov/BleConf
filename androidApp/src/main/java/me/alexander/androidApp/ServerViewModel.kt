@@ -25,6 +25,7 @@ data class HistoryModel(
 )
 
 data class ConfModel(
+    val isAuthed: Boolean = false,
     val conf: Conf = Conf(),
     val errorText: String = "",
 )
@@ -136,15 +137,23 @@ class ServerViewModel(
         Log.d(TAG, "reloadHistory post")
     }
 
+    // Авторизация для просмотра/редактирования системных настроек сервера
+    fun authConf(pwd: String) {
+        Log.d(TAG, "authConf")
+        if (pwd == "7777") {
+            _conf.value = ConfModel(isAuthed = true)
+        }
+    }
+
     fun reloadConf() {
         Log.d(TAG, "reloadConf")
         _bleScope.launch {
             try {
                 ensureConnected()
-                _conf.value = ConfModel(bleServerConn.getConf())
+                _conf.value = ConfModel(isAuthed = true, conf = bleServerConn.getConf())
             } catch (e: Exception) {
                 Log.d(TAG, e.toString())
-                _conf.value = ConfModel(errorText = e.toString())
+                _conf.value = ConfModel(isAuthed = true, errorText = e.toString())
             }
         }
         Log.d(TAG, "reloadConf post")

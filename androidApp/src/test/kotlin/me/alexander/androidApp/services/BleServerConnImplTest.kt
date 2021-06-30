@@ -7,6 +7,7 @@ import me.alexander.androidApp.domain.Conf
 import me.alexander.androidApp.domain.Sensor
 import org.mockito.kotlin.*
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -103,17 +104,22 @@ class BleServerConnImplTest {
 
     @Test
     fun getConfTest() {
-        /*periphMock.stub {
+        val testConf = Conf()
+        val testConfRaw = ByteBuffer.allocate(4 + 4 + 4 + 4 + 4 + 4 + 4).order(ByteOrder.LITTLE_ENDIAN)
+            .putFloat(testConf.adcCoeff)
+            .array()
+
+        periphMock.stub {
             onBlocking {
-                read(argThat<Characteristic> { characteristicUuid == uuidFrom(CONF_TIME_CH_UUID) } )
-            } doReturn testTimeRaw
-        }*/
+                read(argThat<Characteristic> { characteristicUuid == uuidFrom(CONF_CONF_CH_UUID) } )
+            } doReturn testConfRaw
+        }
 
         val conf = runBlocking {
             sut.getConf()
         }
 
-        assertEquals(0, conf.dummy)
+        assertEquals(testConf.adcCoeff, conf.adcCoeff)
     }
 
     @Test

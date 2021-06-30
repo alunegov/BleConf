@@ -130,20 +130,29 @@ class BleServerConnImpl(
         val confRaw = periph.read(characteristicOf(CONF_SERVICE_UUID, CONF_CONF_CH_UUID))
 
         return ByteBuffer.wrap(confRaw).order(ByteOrder.LITTLE_ENDIAN).let {
-            val dummy1 = it.getInt()
-            val dummy2 = it.getInt()
+            val adcCoeff = it.getFloat()
+            val adcEmonNum = it.getInt()
+            val adcAverNum = it.getInt()
+            val adcImbaNum = it.getInt()
+            val adcImbaMinCurrent = it.getFloat()
+            val adcImbaMinSwing = it.getFloat()
+            val adcImbaThreshold = it.getFloat()
 
-            Conf(dummy1, dummy2)
+            Conf(adcCoeff, adcEmonNum, adcAverNum, adcImbaNum, adcImbaMinCurrent, adcImbaMinSwing, adcImbaThreshold)
         }
     }
 
     override suspend fun setConf(conf: Conf) {
         logger?.d(TAG, "setConf")
 
-        // TODO: encode conf
-        val confRaw = ByteBuffer.allocate(4 + 4).order(ByteOrder.LITTLE_ENDIAN)
-            .putInt(conf.dummy1)
-            .putInt(conf.dummy2)
+        val confRaw = ByteBuffer.allocate(4 + 4 + 4 + 4 + 4 + 4 + 4).order(ByteOrder.LITTLE_ENDIAN)
+            .putFloat(conf.adcCoeff)
+            .putInt(conf.adcEmonNum)
+            .putInt(conf.adcAverNum)
+            .putInt(conf.adcImbaNum)
+            .putFloat(conf.adcImbaMinCurrent)
+            .putFloat(conf.adcImbaMinSwing)
+            .putFloat(conf.adcImbaThreshold)
             .array()
 
         periph.write(characteristicOf(CONF_SERVICE_UUID, CONF_CONF_CH_UUID), confRaw, WriteType.WithResponse)

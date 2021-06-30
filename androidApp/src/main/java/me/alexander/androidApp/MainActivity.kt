@@ -22,7 +22,7 @@ import androidx.navigation.navigation
 import me.alexander.androidApp.services.BleConn
 import me.alexander.androidApp.services.BleConnImpl
 import me.alexander.androidApp.ui_compose.SensorsList
-import me.alexander.androidApp.ui_compose.ServerConf
+import me.alexander.androidApp.ui_compose.ServerConfEntry
 import me.alexander.androidApp.ui_compose.ServerHistory
 import me.alexander.androidApp.ui_compose.ServersList
 
@@ -82,7 +82,7 @@ fun Root(isGranted: State<Boolean>, bleConn: BleConn) {
             composable(ServerScreen.Conf.route) {
                 val viewModel: ServerViewModel = it.parentViewModel(navController = navController, factory = serverViewModelFactory(bleConn, address))
                 Log.d(TAG, viewModel.toString())
-                ServerConf(viewModel, navController)
+                ServerConfEntry(viewModel, navController)
             }
         }
     }
