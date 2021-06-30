@@ -1,10 +1,9 @@
 package me.alexander.androidApp.ui_compose
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Checkbox
+import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -14,6 +13,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import me.alexander.androidApp.ServerViewModel
+
+private const val TAG = "SensorsList"
 
 @Composable
 fun SensorsList(
@@ -66,7 +67,7 @@ fun SensorsList(
                         .fillMaxWidth()
                         .padding(8.dp, 8.dp),
                 ) {
-                    Checkbox(
+                    Switch(
                         checked = sensor.enabled,
                         onCheckedChange = { checked -> viewModel.setEnabled(sensor.id, checked) },
                     )
