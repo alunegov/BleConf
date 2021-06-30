@@ -5,6 +5,9 @@ import com.benasher44.uuid.bytes
 import com.benasher44.uuid.uuidFrom
 import com.juul.kable.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 import me.alexander.androidApp.domain.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -25,11 +28,18 @@ internal const val CONF_COEFF_CH_UUID = "95f78395-3a98-45a3-9cc7-d71cfded4ff7"
 internal const val STATES_SERVICE_UUID = "4834cad6-5043-4ed9-8d85-a277e72c8178"  // ref sensor
 //internal const val STATES_SENSORx_CH_UUID
 
+private val CoeffChara = characteristicOf(
+    service = CONF_SERVICE_UUID,
+    characteristic = CONF_COEFF_CH_UUID,
+)
+
 class BleServerConnImpl(
     override val serverName: String,
     private val periph: Peripheral,
     private val logger: Logger? = null,
 ) : BleServerConn {
+    override val coeff: Flow<Float> = periph.observe(CoeffChara).map { it.coeff }
+
     override suspend fun connect() {
         logger?.d(TAG, "connect")
         // TODO: withTimeoutOrNull
@@ -50,33 +60,59 @@ class BleServerConnImpl(
 
         val statesService = periph.services?.firstOrNull { it.serviceUuid == uuidFrom(STATES_SERVICE_UUID) } ?: return emptyList()
 
-        val newSensors = mutableListOf<Sensor>()
+        val sensors = mutableListOf<Sensor>()
 
         val enabledEncRaw = periph.read(characteristicOf(CONF_SERVICE_UUID, CONF_ENABLED_CH_UUID))
         logger?.d(TAG, "enabledEnc = " + enabledEncRaw[0].toString())
 
         statesService.characteristics.forEachIndexed { i, it ->
-            // TODO: unstable index i
-            val enabled = (enabledEncRaw[0].toInt() and (1 shl i)) != 0
-            val stateRaw = periph.read(it)
-            var coeff: Float? = null
-            // TODO: adc chann descriptor?
-            if (i == 7) {
-                val coeffRaw = periph.read(characteristicOf(CONF_SERVICE_UUID, CONF_COEFF_CH_UUID))
-                // TODO: ByteOrder.LITTLE_ENDIAN?
-                coeff = ByteBuffer.wrap(coeffRaw).getFloat()
-            }
-
-            newSensors += Sensor(
-                it.characteristicUuid.toString(),
-                extractName(it.characteristicUuid),
-                enabled,
-                stateRaw[0].toInt(),
-                coeff,
-            )
+            sensors += loadSensor(it, i, enabledEncRaw)
         }
 
-        return newSensors
+        return sensors
+    }
+
+    override suspend fun getSensor(id: String): Sensor? {
+        logger?.d(TAG, "getSensor $id")
+
+        val statesService = periph.services?.firstOrNull { it.serviceUuid == uuidFrom(STATES_SERVICE_UUID) } ?: return null
+
+        val enabledEncRaw = periph.read(characteristicOf(CONF_SERVICE_UUID, CONF_ENABLED_CH_UUID))
+        logger?.d(TAG, "enabledEnc = " + enabledEncRaw[0].toString())
+
+        val sensorChara = statesService.characteristics.firstOrNull { it.characteristicUuid.toString() == id } ?: return null
+        val sensorCharaIndex = statesService.characteristics.indexOf(sensorChara)
+
+        return loadSensor(sensorChara, sensorCharaIndex, enabledEncRaw)
+    }
+
+    /**
+     * Загружает датчик
+     *
+     * @param chara Ble-характеристика датчика
+     * @param charaIndex Индекс ble-характеристики датчика
+     * @param enabledEncRaw "Включенность" датчиков
+     *
+     * @return Датчик
+     */
+    private suspend fun loadSensor(chara: DiscoveredCharacteristic, charaIndex: Int, enabledEncRaw: ByteArray): Sensor {
+        // TODO: unstable index charaIndex
+        val enabled = (enabledEncRaw[0].toInt() and (1 shl charaIndex)) != 0
+        val stateRaw = periph.read(chara)
+        var coeff: Float? = null
+        // TODO: adc sensor descriptor?
+        if (charaIndex == 7) {
+            val coeffRaw = periph.read(CoeffChara)
+            coeff = coeffRaw.coeff
+        }
+
+        return Sensor(
+            chara.characteristicUuid.toString(),
+            extractName(chara.characteristicUuid),
+            enabled,
+            stateRaw[0].toInt(),
+            coeff,
+        )
     }
 
     private fun extractName(id: Uuid): String {
@@ -174,3 +210,6 @@ class BleServerConnImpl(
         periph.write(characteristicOf(CONF_SERVICE_UUID, CONF_TIME_CH_UUID), timeRaw, WriteType.WithResponse)
     }
 }
+
+private inline val ByteArray.coeff: Float
+    get() = ByteBuffer.wrap(this).order(ByteOrder.LITTLE_ENDIAN).getFloat()

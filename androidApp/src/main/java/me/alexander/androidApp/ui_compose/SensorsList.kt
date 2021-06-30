@@ -31,6 +31,7 @@ fun SensorsList(
         viewModel.syncTime()
         onDispose {
             //Log.d(TAG, "SensorsList DisposableEffect onDispose")
+            viewModel.stopObserveSensors()
         }
     }
 

@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import me.alexander.androidApp.domain.Conf
@@ -20,7 +21,7 @@ data class SensorsModel(
 )
 
 data class HistoryModel(
-    val servers: List<HistoryEvent> = emptyList(),
+    val events: List<HistoryEvent> = emptyList(),
     val errorText: String = "",
 )
 
@@ -56,10 +57,10 @@ class ServerViewModel(
 
     private val bleServerConn = bleConn.getServerConn(address, _bleScope)
 
+    private var _coeffCollectJob: Job? = null
+
     val serverName: String
-        get() {
-            return bleServerConn.serverName
-        }
+        get() = bleServerConn.serverName
 
     init {
         Log.d(TAG, "INIT")
@@ -88,13 +89,44 @@ class ServerViewModel(
         _bleScope.launch {
             try {
                 ensureConnected()
-                _sensors.value = SensorsModel(bleServerConn.getSensors())
+                _sensors.value = SensorsModel(sensors = bleServerConn.getSensors())
             } catch (e: Exception) {
                 Log.d(TAG, e.toString())
                 _sensors.value = SensorsModel(errorText = e.toString())
             }
         }
+        if (_coeffCollectJob?.isActive != true) {
+            Log.d(TAG, "coeffCollect")
+            _coeffCollectJob = _bleScope.launch {
+                Log.d(TAG, "coeffCollect launch")
+                try {
+                    bleServerConn.coeff.collect {
+                        val model = _sensors.value
+
+                        val newSensors = model.sensors.toMutableList()
+                        // TODO: adc sensor identifier?
+                        val i = 7//newSensors.indexOfFirst { it.id == id }
+                        if (i == -1) return@collect
+                        newSensors[i] = newSensors[i].copy(coeff = it)
+
+                        _sensors.value = model.copy(sensors = newSensors)
+                    }
+                } catch (e: Exception) {
+                    Log.d(TAG, e.toString())
+                    // TODO: error?
+                }
+                Log.d(TAG, "coeffCollect launch post")
+            }
+            Log.d(TAG, "coeffCollect post")
+        }
         Log.d(TAG, "reloadSensors post")
+    }
+
+    fun stopObserveSensors() {
+        Log.d(TAG, "stopObserveSensors")
+        _coeffCollectJob?.cancel()
+        _coeffCollectJob = null
+        Log.d(TAG, "stopObserveSensors post")
     }
 
     fun setEnabled(id: String, en: Boolean) {
@@ -112,8 +144,11 @@ class ServerViewModel(
 
                 ensureConnected()
                 bleServerConn.setSensorsEnability(newSensors)
-                // sensors[id].state might change
-                _sensors.value = SensorsModel(bleServerConn.getSensors())
+
+                // sensors[id].state might change. using new object (other than newSensors) to trigger _sensors update
+                val sensors = model.sensors.toMutableList()
+                sensors[i] = bleServerConn.getSensor(id) ?: return@launch
+                _sensors.value = SensorsModel(sensors = sensors)
             } catch (e: Exception) {
                 Log.d(TAG, e.toString())
                 // TODO: reloadSensors?
@@ -128,7 +163,7 @@ class ServerViewModel(
         _bleScope.launch {
             try {
                 ensureConnected()
-                _history.value = HistoryModel(bleServerConn.getHistory())
+                _history.value = HistoryModel(events = bleServerConn.getHistory())
             } catch (e: Exception) {
                 Log.d(TAG, e.toString())
                 _history.value = HistoryModel(errorText = e.toString())
@@ -183,7 +218,7 @@ class ServerViewModel(
         _bleScope.launch {
             try {
                 ensureConnected()
-                _time.value = TimeModel(bleServerConn.getTime())
+                _time.value = TimeModel(time = bleServerConn.getTime())
             } catch (e: Exception) {
                 Log.d(TAG, e.toString())
                 _time.value = TimeModel(errorText = e.toString())
@@ -204,7 +239,7 @@ class ServerViewModel(
             try {
                 val ourTime = System.currentTimeMillis() / 1000
 
-                _time.value = model.copy(time = ourTime)
+                _time.value = TimeModel(time = ourTime)
 
                 ensureConnected()
                 if (abs(bleServerConn.getTime() - ourTime) > 1) {

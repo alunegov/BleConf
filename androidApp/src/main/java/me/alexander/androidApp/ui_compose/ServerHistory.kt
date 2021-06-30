@@ -46,7 +46,7 @@ fun ServerHistory(
         LazyColumn(
             modifier = Modifier.weight(1.0f),
         ) {
-            items(model.servers) { event ->
+            items(model.events) { event ->
                 Column(
                     modifier = Modifier.fillMaxWidth().padding(8.dp, 8.dp),
                 ) {

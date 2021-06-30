@@ -1,7 +1,7 @@
 # TODO
 
 - [x] автоматическая синхронизация времени при подключении к серверу
-- [ ] получать Coeff через subscribe (notify на сервере)
+- [x] получать Coeff через subscribe (notify на сервере)
 - [x] настройки сервера:
   - ADC_COEFF (float)
   - ADC_EMON_NUM?

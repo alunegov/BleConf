@@ -1,5 +1,7 @@
 package me.alexander.androidApp.services
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import me.alexander.androidApp.domain.*
 
 class BleServerConnStub(
@@ -24,6 +26,17 @@ class BleServerConnStub(
 
     private var time = System.currentTimeMillis()
 
+    override val coeff: Flow<Float> = flow {
+        var coeff = 0.3f
+        while (true) {
+            kotlinx.coroutines.delay(333)
+            emit(coeff)
+            if (coeff++ > 10.0f) {
+                coeff = 0.3f
+            }
+        }
+    }
+
     override suspend fun connect() {
         // nop
     }
@@ -33,6 +46,8 @@ class BleServerConnStub(
     }
 
     override suspend fun getSensors(): List<Sensor> = sensors.values.toList()
+
+    override suspend fun getSensor(id: String): Sensor? = sensors[id]
 
     override suspend fun setSensorsEnability(sensors: List<Sensor>) {
         for (s in sensors) {

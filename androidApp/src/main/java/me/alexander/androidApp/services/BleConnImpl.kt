@@ -54,7 +54,7 @@ class BleConnImpl(
                         _intServers.entries.removeIf { (it.value.time + 5000) <= timeThreshold }
 
                         _servers.value =
-                            ServersModel(_intServers.values.map { Server(mac(it.adv), it.adv.name, it.adv.rssi) })
+                            ServersModel(servers = _intServers.values.map { Server(mac(it.adv), it.adv.name, it.adv.rssi) })
                     }
             } catch (ce: CancellationException) {
                 logger?.d(TAG, ce.toString())
