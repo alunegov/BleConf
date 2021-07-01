@@ -6,7 +6,6 @@ import com.benasher44.uuid.uuidFrom
 import com.juul.kable.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import me.alexander.androidApp.domain.*
 import java.nio.ByteBuffer
@@ -28,7 +27,14 @@ internal const val CONF_COEFF_CH_UUID = "95f78395-3a98-45a3-9cc7-d71cfded4ff7"
 internal const val STATES_SERVICE_UUID = "4834cad6-5043-4ed9-8d85-a277e72c8178"  // ref sensor
 //internal const val STATES_SENSORx_CH_UUID
 
-private val CoeffChara = characteristicOf(
+// Characteristic User Description
+internal const val CUD_DSC_UUID = "00002901-0000-1000-8000-00805f9b34fb";
+// Characteristic Presentation Format
+//internal const val CPF_DSC_UUID = "00002904-0000-1000-8000-00805f9b34fb";
+// Код дескриптора, "говорящего" что у датчика есть коэффициент
+internal const val WITHCOEFF_DSC_UUID = "0000c01d-0000-1000-8000-00805f9b34fb";
+
+private val CoeffChr = characteristicOf(
     service = CONF_SERVICE_UUID,
     characteristic = CONF_COEFF_CH_UUID,
 )
@@ -38,7 +44,7 @@ class BleServerConnImpl(
     private val periph: Peripheral,
     private val logger: Logger? = null,
 ) : BleServerConn {
-    override val coeff: Flow<Float> = periph.observe(CoeffChara).map { it.coeff }
+    override val coeff: Flow<Float> = periph.observe(CoeffChr).map { it.coeff }
 
     override suspend fun connect() {
         logger?.d(TAG, "connect")
@@ -92,25 +98,37 @@ class BleServerConnImpl(
      * @param chara Ble-характеристика датчика
      * @param charaIndex Индекс ble-характеристики датчика
      * @param enabledEncRaw "Включенность" датчиков
-     *
      * @return Датчик
      */
     private suspend fun loadSensor(chara: DiscoveredCharacteristic, charaIndex: Int, enabledEncRaw: ByteArray): Sensor {
+        val nameDsc = chara.descriptors.firstOrNull { it.descriptorUuid.toString() == CUD_DSC_UUID }
+        val name = if (nameDsc != null) {
+            val nameRaw = periph.read(nameDsc)
+            nameRaw.decodeToString()
+        } else {
+            extractName(chara.characteristicUuid)
+        }
+
         // TODO: unstable index charaIndex
         val enabled = (enabledEncRaw[0].toInt() and (1 shl charaIndex)) != 0
+
         val stateRaw = periph.read(chara)
-        var coeff: Float? = null
-        // TODO: adc sensor descriptor?
-        if (charaIndex == 7) {
-            val coeffRaw = periph.read(CoeffChara)
-            coeff = coeffRaw.coeff
+        val state = stateRaw[0].toInt()
+
+        val withCoeffDsc = chara.descriptors.firstOrNull { it.descriptorUuid.toString() == WITHCOEFF_DSC_UUID }
+        val coeff: Float? = if (withCoeffDsc != null) {
+            // не читаем значение дескриптора - там всегда 1
+            val coeffRaw = periph.read(CoeffChr)
+            coeffRaw.coeff
+        } else {
+            null
         }
 
         return Sensor(
             chara.characteristicUuid.toString(),
-            extractName(chara.characteristicUuid),
+            name,
             enabled,
-            stateRaw[0].toInt(),
+            state,
             coeff,
         )
     }

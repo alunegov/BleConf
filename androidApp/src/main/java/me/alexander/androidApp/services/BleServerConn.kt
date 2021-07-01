@@ -25,7 +25,6 @@ interface BleServerConn {
      * Возвращает датчик по коду
      *
      * @param id Код датчика (ble-характеристики)
-     *
      * @return Датчик или null, если нет ble-сервиса STATES_SERVICE или датчика (ble-характеристики) с указанным кодом
      */
     suspend fun getSensor(id: String): Sensor?
