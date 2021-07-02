@@ -12,14 +12,14 @@ import androidx.navigation.NavController
 @Composable
 fun ServerAppBar(
     title: String,
-    navController: NavController,
+    onBackClicked: () -> Unit,
 ) {
     TopAppBar(
         title = {
             Text(title)
         },
         navigationIcon = {
-            IconButton(onClick = { navController.popBackStack() }) {
+            IconButton(onClick = onBackClicked) {
                 Icon(Icons.Filled.ArrowBack, null)
             }
         },

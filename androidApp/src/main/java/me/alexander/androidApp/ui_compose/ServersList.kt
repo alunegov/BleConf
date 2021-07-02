@@ -12,11 +12,14 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import me.alexander.androidApp.RootScreen
 import me.alexander.androidApp.ServersListViewModel
 import me.alexander.androidApp.address
+import me.alexander.androidApp.domain.Server
+import me.alexander.androidApp.domain.ServersModel
 
 private const val TAG = "ServersList"
 
@@ -39,14 +42,30 @@ fun ServersList(
         }
     }
 
+    ServersListScreen(
+        model = state.value,
+        onServerClicked = { serverAddress ->
+            address = serverAddress
+
+            navController.navigate(RootScreen.Server.route) {
+                //launchSingleTop = true
+                //restoreState = true
+            }
+        }
+    )
+}
+
+@Composable
+fun ServersListScreen(
+    model: ServersModel,
+    onServerClicked: (String) -> Unit,
+) {
     Column {
         TopAppBar(
             title = {
                 Text("BleConn")
             },
         )
-
-        val model = state.value
 
         if (model.errorText.isNotEmpty()) {
             Text(
@@ -62,13 +81,7 @@ fun ServersList(
                 Row(
                     modifier = Modifier
                         .clickable {
-                            address = server.address
-
-                            navController.navigate(RootScreen.Server.route) {
-                                //launchSingleTop = true
-                                //restoreState = true
-                            }
-                            //logNavBackQueue(navController)
+                            onServerClicked(server.address)
                         }
                         .fillMaxWidth()
                         .padding(8.dp, 8.dp),
@@ -86,4 +99,19 @@ fun ServersList(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun ServersListScreenPreview() {
+    ServersListScreen(
+        model = ServersModel(
+            servers = listOf(
+                Server("1", "Server 1", -10),
+                Server("2", "Server 2", -20),
+            ),
+            errorText = "Error",
+        ),
+        onServerClicked = {},
+    )
 }

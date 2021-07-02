@@ -1,7 +1,6 @@
 package me.alexander.androidApp.ui_compose
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
@@ -12,11 +11,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import me.alexander.androidApp.ConfModel
-import me.alexander.androidApp.ServerViewModel
-import me.alexander.androidApp.TimeModel
+import androidx.navigation.compose.rememberNavController
+import me.alexander.androidApp.*
 import me.alexander.androidApp.domain.Conf
 import java.util.*
 
@@ -41,11 +40,31 @@ fun ServerConfEntry(
         }
     }
 
-    Column {
-        ServerAppBar(viewModel.serverName, navController)
+    ServerConfEntryScreen(
+        serverName = viewModel.serverName,
+        confModel = confState.value,
+        timeModel = timeState.value,
+        onAuthClicked = { viewModel.authConf(it) },
+        onSetConfClicked = { viewModel.setConf(it) },
+        onBackClicked = { navController.popBackStack() },
+        currentRoute = getCurrentRoute(navController),
+        onRouteClicked = createNavigateToRouteClicked(navController),
+    )
+}
 
-        val confModel = confState.value
-        val timeModel = timeState.value
+@Composable
+fun ServerConfEntryScreen(
+    serverName: String,
+    confModel: ConfModel,
+    timeModel: TimeModel,
+    onAuthClicked: (String) -> Unit,
+    onSetConfClicked: (Conf) -> Unit,
+    onBackClicked: () -> Unit,
+    currentRoute: String?,
+    onRouteClicked: (String) -> Unit,
+) {
+    Column {
+        ServerAppBar(serverName, onBackClicked)
 
         if (confModel.errorText.isNotEmpty() || timeModel.errorText.isNotEmpty()) {
             Column {
@@ -70,20 +89,64 @@ fun ServerConfEntry(
                 .weight(1.0f)
                 .padding(8.dp, 8.dp),
         ) {
-            if (confState.value.isAuthed) {
-                ServerConfEdit(confModel, timeModel, viewModel)
+            if (confModel.isAuthed) {
+                ServerConfEdit(confModel, timeModel, onSetConfClicked)
             } else {
-                ServerConfAuth(viewModel)
+                ServerConfAuth(onAuthClicked)
             }
         }
 
-        ServerBottomBar(navController)
+        ServerBottomBar(currentRoute, onRouteClicked)
     }
+}
+
+@Preview
+@Composable
+fun ServerConfEntryScreenPreview_Authed() {
+    ServerConfEntryScreen(
+        serverName = "Server",
+        confModel = ConfModel(
+            isAuthed = true,
+            conf = Conf(),
+            errorText = "Conf error",
+        ),
+        timeModel = TimeModel(
+            time = 1,
+            errorText = "Time error",
+        ),
+        onAuthClicked = {},
+        onSetConfClicked = {},
+        onBackClicked = {},
+        currentRoute = ServerScreen.Conf.route,
+        onRouteClicked = {},
+    )
+}
+
+@Preview
+@Composable
+fun ServerConfEntryScreenPreview_NotAuthed() {
+    ServerConfEntryScreen(
+        serverName = "Server",
+        confModel = ConfModel(
+            isAuthed = false,
+            conf = Conf(),
+            errorText = "Conf error",
+        ),
+        timeModel = TimeModel(
+            time = 1,
+            errorText = "Time error",
+        ),
+        onAuthClicked = {},
+        onSetConfClicked = {},
+        onBackClicked = {},
+        currentRoute = ServerScreen.Conf.route,
+        onRouteClicked = {},
+    )
 }
 
 @Composable
 fun ServerConfAuth(
-    viewModel: ServerViewModel,
+    onAuthClicked: (String) -> Unit,
 ) {
     Column {
         var pwd by remember { mutableStateOf("") }
@@ -97,7 +160,7 @@ fun ServerConfAuth(
         )
 
         Button(
-            onClick = { viewModel.authConf(pwd) },
+            onClick = { onAuthClicked(pwd) },
         ) {
             Text("Auth")
         }
@@ -108,7 +171,7 @@ fun ServerConfAuth(
 fun ServerConfEdit(
     confModel: ConfModel,
     timeModel: TimeModel,
-    viewModel: ServerViewModel,
+    onSetConfClicked: (Conf) -> Unit,
 ) {
     Column {
         Text(Date(timeModel.time * 1000).toString())
@@ -180,7 +243,7 @@ fun ServerConfEdit(
                     adcImbaMinCurrent.toFloat(),
                     adcImbaMinSwing.toFloat(),
                     adcImbaThreshold.toFloat(),
-                ).also { viewModel.setConf(it) }
+                ).also { onSetConfClicked(it) }
             },
         ) {
             Text("SetConf")

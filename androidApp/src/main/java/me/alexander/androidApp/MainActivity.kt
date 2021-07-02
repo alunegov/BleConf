@@ -59,6 +59,9 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
+// TODO: pass via nav args
+var address: String = ""
+
 @Composable
 fun Root(isGranted: State<Boolean>, bleConn: BleConn) {
     val navController = rememberNavController()
@@ -107,9 +110,6 @@ inline fun <reified VM: ViewModel> NavBackStackEntry.parentViewModel(
     return ViewModelProvider(parentBackStackEntry, factory).get()
 }
 
-// TODO: pass via nav args
-var address: String = ""
-
 fun serversListViewModelFactory(bleConn: BleConn): ViewModelProvider.Factory {
     return object : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
@@ -127,17 +127,3 @@ fun serverViewModelFactory(bleConn: BleConn, address: String): ViewModelProvider
         }
     }
 }
-
-/*fun logNavBackQueue(navController: NavController) {
-    navController.backQueue.forEach {
-        Log.d(TAG, """destination = ${it.destination}
-            arguments = ${it.arguments}
-            id = ${it.id}
-            savedStateHandle = ${it.savedStateHandle.keys()}
-            getLifecycle = ${it.getLifecycle()}
-            maxLifecycle = ${it.maxLifecycle}
-            getViewModelStore = ${it.getViewModelStore()}
-            getDefaultViewModelProviderFactory = ${it.getDefaultViewModelProviderFactory()}
-            getSavedStateRegistry = ${it.getSavedStateRegistry()}""")
-    }
-}*/

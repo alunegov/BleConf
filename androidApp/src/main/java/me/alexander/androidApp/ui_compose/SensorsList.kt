@@ -10,9 +10,15 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import me.alexander.androidApp.SensorsModel
+import me.alexander.androidApp.ServerScreen
 import me.alexander.androidApp.ServerViewModel
+import me.alexander.androidApp.TimeModel
+import me.alexander.androidApp.domain.Sensor
 
 private const val TAG = "SensorsList"
 
@@ -35,11 +41,29 @@ fun SensorsList(
         }
     }
 
-    Column {
-        ServerAppBar(viewModel.serverName, navController)
+    SensorsListScreen(
+        serverName = viewModel.serverName,
+        sensorsModel = sensorsState.value,
+        timeModel = timeState.value,
+        onSensorChecked = { sensorId, checked -> viewModel.setEnabled(sensorId, checked) },
+        onBackClicked = { navController.popBackStack() },
+        currentRoute = getCurrentRoute(navController),
+        onRouteClicked = createNavigateToRouteClicked(navController),
+    )
+}
 
-        val sensorsModel = sensorsState.value
-        val timeModel = timeState.value
+@Composable
+fun SensorsListScreen(
+    serverName: String,
+    sensorsModel: SensorsModel,
+    timeModel: TimeModel,
+    onSensorChecked: (String, Boolean) -> Unit,
+    onBackClicked: () -> Unit,
+    currentRoute: String?,
+    onRouteClicked: (String) -> Unit,
+) {
+    Column {
+        ServerAppBar(serverName, onBackClicked)
 
         if (sensorsModel.errorText.isNotEmpty() || timeModel.errorText.isNotEmpty()) {
             Column {
@@ -70,7 +94,7 @@ fun SensorsList(
                 ) {
                     Switch(
                         checked = sensor.enabled,
-                        onCheckedChange = { checked -> viewModel.setEnabled(sensor.id, checked) },
+                        onCheckedChange = { checked -> onSensorChecked(sensor.id, checked) },
                     )
 
                     Spacer(Modifier.size(16.dp))
@@ -97,6 +121,32 @@ fun SensorsList(
             }
         }
 
-        ServerBottomBar(navController)
+        ServerBottomBar(currentRoute, onRouteClicked)
     }
+}
+
+@Preview
+@Composable
+fun SensorsListScreenPreview() {
+    SensorsListScreen(
+        serverName = "Server",
+        sensorsModel = SensorsModel(
+            sensors = listOf(
+                Sensor("1", "Sensor 1", true, 0, null),
+                Sensor("2", "Sensor 2", true, 1, null),
+                Sensor("3", "Sensor 3", true, 2, null),
+                Sensor("4", "Sensor 4", false, 0, null),
+                Sensor("5", "Sensor 5", false, 1, null),
+                Sensor("6", "Sensor 6", false, 2, null),
+                Sensor("7", "Sensor 7", true, 0, null),
+                Sensor("8", "Sensor 8", true, 0, 1.13f),
+            ),
+            errorText = "Sensors error",
+        ),
+        timeModel = TimeModel(errorText = "Time error"),
+        onSensorChecked = { _, _ -> },
+        onBackClicked = {},
+        currentRoute = ServerScreen.Sensors.route,
+        onRouteClicked = {},
+    )
 }

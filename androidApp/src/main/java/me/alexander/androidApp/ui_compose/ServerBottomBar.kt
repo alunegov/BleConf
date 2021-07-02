@@ -24,28 +24,15 @@ val serverScreenItems = listOf(
 )
 
 @Composable
-fun ServerBottomBar(navController: NavController) {
+fun ServerBottomBar(
+    currentRoute: String?,
+    onRouteClicked: (String) -> Unit,
+) {
     BottomNavigation {
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        //val currentRoute = navBackStackEntry?.arguments?.getString(KEY_ROUTE)
-        val currentRoute = navBackStackEntry?.destination?.route
         serverScreenItems.forEach {
             BottomNavigationItem(
                 selected = currentRoute == it.route,
-                onClick = {
-                    //Log.d(TAG, String.format("nav to %s, popUpTo %s", it.route, navController.graph.startDestinationRoute ?: ""))
-                    navController.navigate(it.route) {
-                        launchSingleTop = true
-                        //restoreState = true
-                        //popUpTo(navController.graph.startDestinationId) {
-                        //saveState = true
-                        //}
-                        popUpTo(RootScreen.Server.route) {
-                            //saveState = true
-                        }
-                    }
-                    //logNavBackQueue(navController)
-                },
+                onClick = { onRouteClicked(it.route) },
                 icon = {
                     when (it.IconId) {
                         1 -> Icon(Icons.Filled.Sensors, null)
@@ -55,6 +42,25 @@ fun ServerBottomBar(navController: NavController) {
                 },
                 label = { Text(it.caption) },
             )
+        }
+    }
+}
+
+@Composable
+fun getCurrentRoute(navController: NavController): String? {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    return navBackStackEntry?.destination?.route
+}
+
+fun createNavigateToRouteClicked(navController: NavController): (String) -> Unit {
+    return { route: String ->
+        //Log.d(TAG, String.format("nav to %s, popUpTo %s", it.route, navController.graph.startDestinationRoute ?: ""))
+        navController.navigate(route) {
+            launchSingleTop = true
+            //restoreState = true
+            popUpTo(RootScreen.Server.route) {
+                //saveState = true
+            }
         }
     }
 }
