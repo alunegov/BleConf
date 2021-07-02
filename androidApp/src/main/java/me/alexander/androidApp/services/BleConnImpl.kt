@@ -38,23 +38,29 @@ class BleConnImpl(
             return
         }
 
+        // resetting time to not exceed threshold on consecutive scans
+        _intServers.values.forEach { it.time = System.currentTimeMillis() }
+
         _scanJob = scope.launch {
             logger?.d(TAG, "startScan launch")
 
             try {
                 scanner
                     .advertisements
-                    .filter { it.uuids.contains(uuidFrom(CONF_SERVICE_UUID)) }
+                    //.filter { it.uuids.contains(uuidFrom(CONF_SERVICE_UUID)) }
                     .collect { adv ->
                         //logger?.d(TAG, "scan tick with ${adv.address}")
 
-                        _intServers[adv.address] = IntServer(adv, System.currentTimeMillis())
+                        // делаем фильтрацию "наших" устройств здесь, а не перед collect, п.ч. при "исчезновении"
+                        // последнего устройства оно навсегда останется в списке (список не обнулится)
+                        if (adv.uuids.contains(uuidFrom(CONF_SERVICE_UUID))) {
+                            _intServers[adv.address] = IntServer(adv, System.currentTimeMillis())
+                        }
 
                         val timeThreshold = System.currentTimeMillis()
                         _intServers.entries.removeIf { (it.value.time + 5000) <= timeThreshold }
 
-                        _servers.value =
-                            ServersModel(servers = _intServers.values.map { Server(mac(it.adv), it.adv.name, it.adv.rssi) })
+                        _servers.value = ServersModel(servers = _intServers.values.map { Server(mac(it.adv), it.adv.name, it.adv.rssi) })
                     }
             } catch (ce: CancellationException) {
                 logger?.d(TAG, ce.toString())
@@ -77,11 +83,12 @@ class BleConnImpl(
     }
 
     override fun getServerConn(id: String, scope: CoroutineScope): BleServerConn {
-        logger?.d(TAG, "getServerConn")
+        logger?.d(TAG, "getServerConn for $id")
+        //logger?.d(TAG, "_intServers $_intServers")
         // TODO: check id presence
         val adv = _intServers[id]?.adv!!
         return BleServerConnImpl(
-            adv.name ?: "noname",
+            adv.name ?: "Noname",
             scope.peripheral(adv),
             logger,
         )
@@ -89,6 +96,6 @@ class BleConnImpl(
 
     internal data class IntServer(
         val adv: Advertisement,
-        val time: Long,
+        var time: Long,
     )
 }

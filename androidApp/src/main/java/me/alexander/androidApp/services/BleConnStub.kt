@@ -31,8 +31,8 @@ object BleConnStub : BleConn {
                 delay(555)
                 _servers.value = ServersModel(
                     listOf(
-                        Server("1", "1", (-19..-10).random()),
-                        Server("2", "2", (-29..-20).random()),
+                        Server("10:20:30:40:50:61", "Server 1", (-19..-10).random()),
+                        Server("10:20:30:40:50:62", "Server 2", (-29..-20).random()),
                     )
                 )
             }

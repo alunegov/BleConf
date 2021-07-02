@@ -1,5 +1,6 @@
 package me.alexander.androidApp.services
 
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import me.alexander.androidApp.domain.*
@@ -8,14 +9,14 @@ class BleServerConnStub(
     override val serverName: String,
 ) : BleServerConn {
     private val sensors = hashMapOf<String, Sensor>(
-        "1" to Sensor("1", "1", true, 2),
-        "2" to Sensor("2", "2", false, 2),
-        "3" to Sensor("3", "3", false, 2),
-        "4" to Sensor("4", "4", false, 2),
-        "5" to Sensor("5", "5", false, 2),
-        "6" to Sensor("6", "6", false, 2),
-        "7" to Sensor("7", "7", true, 0),
-        "8" to Sensor("8", "8", true, 2, 0.3f),
+        "1" to Sensor("1", "Sensor 1", true, 2),
+        "2" to Sensor("2", "Sensor 2", false, 2),
+        "3" to Sensor("3", "Sensor 3", false, 2),
+        "4" to Sensor("4", "Sensor 4", false, 2),
+        "5" to Sensor("5", "Sensor 5", false, 2),
+        "6" to Sensor("6", "Sensor 6", false, 2),
+        "7" to Sensor("7", "Sensor 7", true, 0),
+        "8" to Sensor("8", "Sensor 8", true, 2, 0.3f),
     )
 
     private val history = mutableListOf<HistoryEvent>(
@@ -29,7 +30,7 @@ class BleServerConnStub(
     override val coeff: Flow<Float> = flow {
         var coeff = 0.3f
         while (true) {
-            kotlinx.coroutines.delay(333)
+            delay(3333)
             emit(coeff)
             if (coeff++ > 10.0f) {
                 coeff = 0.3f
@@ -71,7 +72,7 @@ class BleServerConnStub(
     override suspend fun getConf(): Conf = conf
 
     override suspend fun setConf(conf: Conf) {
-        TODO("Not yet implemented")
+        this.conf = conf
     }
 
     override suspend fun getTime(): Long = time

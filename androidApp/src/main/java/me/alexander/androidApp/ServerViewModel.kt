@@ -18,38 +18,42 @@ private const val TAG = "ServerViewModel"
 data class SensorsModel(
     val sensors: List<Sensor> = emptyList(),
     val errorText: String = "",
+    val loading: Boolean = false,
 )
 
 data class HistoryModel(
     val events: List<HistoryEvent> = emptyList(),
     val errorText: String = "",
+    val loading: Boolean = false,
 )
 
 data class ConfModel(
     val isAuthed: Boolean = false,
     val conf: Conf = Conf(),
     val errorText: String = "",
+    val loading: Boolean = false,
 )
 
 data class TimeModel(
     val time: Long = 0,
     val errorText: String = "",
+    val loading: Boolean = false,
 )
 
 class ServerViewModel(
     private val bleConn: BleConn,
     private val address: String,
 ) : ViewModel() {
-    private val _sensors = MutableStateFlow(SensorsModel())
+    private val _sensors = MutableStateFlow(SensorsModel(loading = true))
     val sensors = _sensors.asStateFlow()
 
-    private val _history = MutableStateFlow(HistoryModel())
+    private val _history = MutableStateFlow(HistoryModel(loading = true))
     val history = _history.asStateFlow()
 
-    private val _conf = MutableStateFlow(ConfModel())
+    private val _conf = MutableStateFlow(ConfModel(loading = true))
     val conf = _conf.asStateFlow()
 
-    private val _time = MutableStateFlow(TimeModel())
+    private val _time = MutableStateFlow(TimeModel(loading = true))
     val time = _time.asStateFlow()
 
     private val _bleDispatchers = Dispatchers.IO
@@ -87,7 +91,14 @@ class ServerViewModel(
     fun reloadSensors() {
         Log.d(TAG, "reloadSensors")
         _bleScope.launch {
+            val model = _sensors.value
+            if (model.sensors.isEmpty()) {
+                _sensors.value = model.copy(loading = true)
+            }
+
             try {
+                //_sensors.value = SensorsModel(loading = true)
+
                 ensureConnected()
                 _sensors.value = SensorsModel(sensors = bleServerConn.getSensors())
             } catch (e: Exception) {
@@ -100,20 +111,19 @@ class ServerViewModel(
             _coeffCollectJob = _bleScope.launch {
                 Log.d(TAG, "coeffCollect launch")
                 try {
-                    bleServerConn.coeff.collect {
+                    bleServerConn.coeff.collect { coeff ->
                         val model = _sensors.value
 
                         val newSensors = model.sensors.toMutableList()
-                        // TODO: adc sensor identifier?
-                        val i = 7//newSensors.indexOfFirst { it.id == id }
+                        val i = newSensors.indexOfFirst { it.coeff != null }
                         if (i == -1) return@collect
-                        newSensors[i] = newSensors[i].copy(coeff = it)
+                        newSensors[i] = newSensors[i].copy(coeff = coeff)
 
                         _sensors.value = model.copy(sensors = newSensors)
                     }
                 } catch (e: Exception) {
                     Log.d(TAG, e.toString())
-                    // TODO: error?
+                    // TODO: pass error to _sensors?
                 }
                 Log.d(TAG, "coeffCollect launch post")
             }
@@ -161,7 +171,14 @@ class ServerViewModel(
     fun reloadHistory() {
         Log.d(TAG, "reloadHistory")
         _bleScope.launch {
+            val model = _history.value
+            if (model.events.isEmpty()) {
+                _history.value = model.copy(loading = true)
+            }
+
             try {
+                //_history.value = HistoryModel(loading = true)
+
                 ensureConnected()
                 _history.value = HistoryModel(events = bleServerConn.getHistory())
             } catch (e: Exception) {
@@ -175,15 +192,21 @@ class ServerViewModel(
     // Авторизация для просмотра/редактирования системных настроек сервера
     fun authConf(pwd: String) {
         Log.d(TAG, "authConf")
+        // TODO: encrypt pwd
         if (pwd == "7777") {
             _conf.value = ConfModel(isAuthed = true)
+        } else {
+            _conf.value = ConfModel(isAuthed = false, errorText = "Password do not match")
         }
     }
 
     fun reloadConf() {
         Log.d(TAG, "reloadConf")
+        assert(_conf.value.isAuthed)
         _bleScope.launch {
             try {
+                //_conf.value = ConfModel(isAuthed = true, loading = true)
+
                 ensureConnected()
                 _conf.value = ConfModel(isAuthed = true, conf = bleServerConn.getConf())
             } catch (e: Exception) {
@@ -196,6 +219,7 @@ class ServerViewModel(
 
     fun setConf(conf: Conf) {
         Log.d(TAG, "setConf")
+        assert(_conf.value.isAuthed)
         _bleScope.launch {
             val model = _conf.value
 
@@ -217,6 +241,8 @@ class ServerViewModel(
         Log.d(TAG, "reloadTime")
         _bleScope.launch {
             try {
+                //_time.value = TimeModel(loading = true)
+
                 ensureConnected()
                 _time.value = TimeModel(time = bleServerConn.getTime())
             } catch (e: Exception) {

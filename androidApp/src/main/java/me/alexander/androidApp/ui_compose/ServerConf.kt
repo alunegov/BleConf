@@ -1,25 +1,23 @@
 package me.alexander.androidApp.ui_compose
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import me.alexander.androidApp.*
 import me.alexander.androidApp.domain.Conf
 import java.util.*
 
-private const val TAG = "ServerConf"
+//private const val TAG = "ServerConf"
 
 @Composable
 fun ServerConfEntry(
@@ -67,27 +65,13 @@ fun ServerConfEntryScreen(
         ServerAppBar(serverName, onBackClicked)
 
         if (confModel.errorText.isNotEmpty() || timeModel.errorText.isNotEmpty()) {
-            Column {
-                if (confModel.errorText.isNotEmpty()) {
-                    Text(
-                        text = confModel.errorText,
-                        color = Color.Red,
-                    )
-                }
-
-                if (timeModel.errorText.isNotEmpty()) {
-                    Text(
-                        text = timeModel.errorText,
-                        color = Color.Red,
-                    )
-                }
-            }
+            Error(confModel.errorText, timeModel.errorText)
         }
 
         Column(
             modifier = Modifier
                 .weight(1.0f)
-                .padding(8.dp, 8.dp),
+                .fillMaxWidth(),
         ) {
             if (confModel.isAuthed) {
                 ServerConfEdit(confModel, timeModel, onSetConfClicked)
@@ -145,15 +129,110 @@ fun ServerConfEntryScreenPreview_NotAuthed() {
 }
 
 @Composable
+fun ServerConfEdit(
+    confModel: ConfModel,
+    timeModel: TimeModel,
+    onSetConfClicked: (Conf) -> Unit,
+) {
+    val adcCoeff = remember(confModel.conf.adcCoeff) { mutableStateOf(confModel.conf.adcCoeff.toString()) }
+    val adcEmonNum = remember(confModel.conf.adcEmonNum) { mutableStateOf(confModel.conf.adcEmonNum.toString()) }
+    val adcAverNum = remember(confModel.conf.adcAverNum) { mutableStateOf(confModel.conf.adcAverNum.toString()) }
+    val adcImbaNum = remember(confModel.conf.adcImbaNum) { mutableStateOf(confModel.conf.adcImbaNum.toString()) }
+    val adcImbaMinCurrent = remember(confModel.conf.adcImbaMinCurrent) { mutableStateOf(confModel.conf.adcImbaMinCurrent.toString()) }
+    val adcImbaMinSwing = remember(confModel.conf.adcImbaMinSwing) { mutableStateOf(confModel.conf.adcImbaMinSwing.toString()) }
+    val adcImbaThreshold = remember(confModel.conf.adcImbaThreshold) { mutableStateOf(confModel.conf.adcImbaThreshold.toString()) }
+
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState()),
+    ) {
+        Text(
+            text = "System time",
+            modifier = Modifier.padding(8.dp),
+            style = MaterialTheme.typography.h5
+        )
+
+        Divider()
+
+        Text(
+            text = Date(timeModel.time * 1000).toLocaleString(),
+            modifier = Modifier.padding(8.dp),
+        )
+
+        Text(
+            text = "System conf",
+            modifier = Modifier.padding(8.dp),
+            style = MaterialTheme.typography.h5
+        )
+
+        Divider()
+
+        listOf(
+            ConfItem(adcCoeff, "AdcCoeff"),
+            ConfItem(adcEmonNum, "AdcEmonNum"),
+            ConfItem(adcAverNum, "AdcAverNum"),
+            ConfItem(adcImbaNum, "AdcImbaNum"),
+            ConfItem(adcImbaMinCurrent, "AdcImbaMinCurrent"),
+            ConfItem(adcImbaMinSwing, "AdcImbaMinSwing"),
+            ConfItem(adcImbaThreshold, "AdcImbaThreshold"),
+        ).forEach { confItem ->
+            OutlinedTextField(
+                value = confItem.item.value,
+                onValueChange = { confItem.item.value = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                label = { Text(confItem.label) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true,
+            )
+        }
+
+        Button(
+            onClick = {
+                // TODO: convert error
+                Conf(
+                    adcCoeff.value.toFloat(),
+                    adcEmonNum.value.toInt(),
+                    adcAverNum.value.toInt(),
+                    adcImbaNum.value.toInt(),
+                    adcImbaMinCurrent.value.toFloat(),
+                    adcImbaMinSwing.value.toFloat(),
+                    adcImbaThreshold.value.toFloat(),
+                ).also { onSetConfClicked(it) }
+            },
+            modifier = Modifier
+                .align(Alignment.End)
+                .padding(8.dp),
+        ) {
+            Text("SetConf")
+        }
+    }
+}
+
+@Composable
 fun ServerConfAuth(
     onAuthClicked: (String) -> Unit,
 ) {
-    Column {
-        var pwd by remember { mutableStateOf("") }
+    var pwd by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            text = "Authorization",
+            modifier = Modifier
+                //.fillMaxWidth()
+                .padding(8.dp)
+                .align(Alignment.CenterHorizontally),
+        )
 
         OutlinedTextField(
             value = pwd,
             onValueChange = { pwd = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             singleLine = true,
@@ -161,92 +240,16 @@ fun ServerConfAuth(
 
         Button(
             onClick = { onAuthClicked(pwd) },
+            modifier = Modifier
+                .align(Alignment.End)
+                .padding(8.dp),
         ) {
             Text("Auth")
         }
     }
 }
 
-@Composable
-fun ServerConfEdit(
-    confModel: ConfModel,
-    timeModel: TimeModel,
-    onSetConfClicked: (Conf) -> Unit,
-) {
-    Column {
-        Text(Date(timeModel.time * 1000).toString())
-
-        var adcCoeff by remember(confModel.conf.adcCoeff) { mutableStateOf(confModel.conf.adcCoeff.toString()) }
-        var adcEmonNum by remember(confModel.conf.adcEmonNum) { mutableStateOf(confModel.conf.adcEmonNum.toString()) }
-        var adcAverNum by remember(confModel.conf.adcAverNum) { mutableStateOf(confModel.conf.adcAverNum.toString()) }
-        var adcImbaNum by remember(confModel.conf.adcImbaNum) { mutableStateOf(confModel.conf.adcImbaNum.toString()) }
-        var adcImbaMinCurrent by remember(confModel.conf.adcImbaMinCurrent) { mutableStateOf(confModel.conf.adcImbaMinCurrent.toString()) }
-        var adcImbaMinSwing by remember(confModel.conf.adcImbaMinSwing) { mutableStateOf(confModel.conf.adcImbaMinSwing.toString()) }
-        var adcImbaThreshold by remember(confModel.conf.adcImbaThreshold) { mutableStateOf(confModel.conf.adcImbaThreshold.toString()) }
-
-        OutlinedTextField(
-            value = adcCoeff,
-            onValueChange = { adcCoeff = it },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            singleLine = true,
-        )
-
-        OutlinedTextField(
-            value = adcEmonNum,
-            onValueChange = { adcEmonNum = it },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            singleLine = true,
-        )
-
-        OutlinedTextField(
-            value = adcAverNum,
-            onValueChange = { adcAverNum = it },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            singleLine = true,
-        )
-
-        OutlinedTextField(
-            value = adcImbaNum,
-            onValueChange = { adcImbaNum = it },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            singleLine = true,
-        )
-
-        OutlinedTextField(
-            value = adcImbaMinCurrent,
-            onValueChange = { adcImbaMinCurrent = it },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            singleLine = true,
-        )
-
-        OutlinedTextField(
-            value = adcImbaMinSwing,
-            onValueChange = { adcImbaMinSwing = it },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            singleLine = true,
-        )
-
-        OutlinedTextField(
-            value = adcImbaThreshold,
-            onValueChange = { adcImbaThreshold = it },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            singleLine = true,
-        )
-
-        Button(
-            onClick = {
-                Conf(
-                    adcCoeff.toFloat(),
-                    adcEmonNum.toInt(),
-                    adcAverNum.toInt(),
-                    adcImbaNum.toInt(),
-                    adcImbaMinCurrent.toFloat(),
-                    adcImbaMinSwing.toFloat(),
-                    adcImbaThreshold.toFloat(),
-                ).also { onSetConfClicked(it) }
-            },
-        ) {
-            Text("SetConf")
-        }
-    }
-}
+data class ConfItem(
+    val item: MutableState<String>,
+    val label: String,
+)

@@ -12,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.get
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -21,13 +20,19 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import me.alexander.androidApp.services.BleConn
 import me.alexander.androidApp.services.BleConnImpl
-import me.alexander.androidApp.services.BleConnStub
+//import me.alexander.androidApp.services.BleConnStub
 import me.alexander.androidApp.ui_compose.SensorsList
 import me.alexander.androidApp.ui_compose.ServerConfEntry
 import me.alexander.androidApp.ui_compose.ServerHistory
 import me.alexander.androidApp.ui_compose.ServersList
 
 private const val TAG = "MainActivity"
+
+// TODO: pass via nav args
+var gAddress: String = ""
+
+val gBleConn = BleConnImpl(logger = LoggerImpl)
+//val gBleConn = BleConnStub
 
 class MainActivity : AppCompatActivity() {
     private val _isGranted = mutableStateOf(false)
@@ -48,19 +53,13 @@ class MainActivity : AppCompatActivity() {
             else -> requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
 
-        val bleConn = BleConnImpl(logger = LoggerImpl)
-        //val bleConn = BleConnStub
-
         setContent {
             MaterialTheme {
-                Root(_isGranted, bleConn)
+                Root(_isGranted, gBleConn)
             }
         }
     }
 }
-
-// TODO: pass via nav args
-var address: String = ""
 
 @Composable
 fun Root(isGranted: State<Boolean>, bleConn: BleConn) {
@@ -70,21 +69,28 @@ fun Root(isGranted: State<Boolean>, bleConn: BleConn) {
         composable(RootScreen.Servers.route) {
             val viewModel: ServersListViewModel = viewModel(factory = serversListViewModelFactory(bleConn))
             Log.d(TAG, viewModel.toString())
-            ServersList(isGranted, viewModel, navController)
+            ServersList(isGranted, viewModel) { serverAddress ->
+                gAddress = serverAddress
+
+                navController.navigate(RootScreen.Server.route) {
+                    //launchSingleTop = true
+                    //restoreState = true
+                }
+            }
         }
         navigation(route = RootScreen.Server.route, startDestination = ServerScreen.Sensors.route) {
             composable(ServerScreen.Sensors.route) {
-                val viewModel: ServerViewModel = it.parentViewModel(navController = navController, factory = serverViewModelFactory(bleConn, address))
+                val viewModel: ServerViewModel = it.parentViewModel(navController = navController, factory = serverViewModelFactory(bleConn, gAddress))
                 Log.d(TAG, viewModel.toString())
                 SensorsList(viewModel, navController)
             }
             composable(ServerScreen.History.route) {
-                val viewModel: ServerViewModel = it.parentViewModel(navController = navController, factory = serverViewModelFactory(bleConn, address))
+                val viewModel: ServerViewModel = it.parentViewModel(navController = navController, factory = serverViewModelFactory(bleConn, gAddress))
                 Log.d(TAG, viewModel.toString())
                 ServerHistory(viewModel, navController)
             }
             composable(ServerScreen.Conf.route) {
-                val viewModel: ServerViewModel = it.parentViewModel(navController = navController, factory = serverViewModelFactory(bleConn, address))
+                val viewModel: ServerViewModel = it.parentViewModel(navController = navController, factory = serverViewModelFactory(bleConn, gAddress))
                 Log.d(TAG, viewModel.toString())
                 ServerConfEntry(viewModel, navController)
             }
@@ -105,9 +111,7 @@ inline fun <reified VM: ViewModel> NavBackStackEntry.parentViewModel(
     // Now get the NavBackStackEntry associated with the parent
     val parentBackStackEntry = navController.getBackStackEntry(parentId)
 
-    // And since we can't use viewModel(), we use ViewModelProvider directly to get the ViewModel instance, using the
-    // lifecycle-viewmodel-ktx extension
-    return ViewModelProvider(parentBackStackEntry, factory).get()
+    return viewModel(viewModelStoreOwner = parentBackStackEntry, factory = factory)
 }
 
 fun serversListViewModelFactory(bleConn: BleConn): ViewModelProvider.Factory {

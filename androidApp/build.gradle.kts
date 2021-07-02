@@ -22,19 +22,19 @@ dependencies {
     implementation("androidx.compose.material:material-icons-core:${libs.versions.compose.get()}")
     implementation("androidx.compose.material:material-icons-extended:${libs.versions.compose.get()}")
     // Integration with activities
-    implementation("androidx.activity:activity-compose:1.3.0-beta02")
+    implementation("androidx.activity:activity-compose:1.3.0-rc02")
     // Integration with ViewModels
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07")
     // Integration with observables
     //implementation("androidx.compose.runtime:runtime-livedata:${libs.versions.compose.get()}")
     //implementation("androidx.compose.runtime:runtime-rxjava2:${libs.versions.compose.get()}")
     // Integration with Navigation
-    implementation("androidx.navigation:navigation-compose:2.4.0-alpha03")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0-native-mt!!")
-    implementation(libs.mvikotlin.core)
-    implementation(libs.mvikotlin.main)
-    implementation(libs.decompose.core)
-    implementation(libs.decompose.compose.jetpack)
+    implementation("androidx.navigation:navigation-compose:2.4.0-alpha04")
+    //implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0-native-mt!!")
+    //implementation(libs.mvikotlin.core)
+    //implementation(libs.mvikotlin.main)
+    //implementation(libs.decompose.core)
+    //implementation(libs.decompose.compose.jetpack)
     implementation(libs.kable.core)
     implementation(platform("com.google.firebase:firebase-bom:28.0.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")
@@ -70,7 +70,6 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
-        useIR = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.compose.get()

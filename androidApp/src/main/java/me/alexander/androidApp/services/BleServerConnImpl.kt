@@ -162,7 +162,7 @@ class BleServerConnImpl(
     // example: "time: 587093, en: 193; time: 587088, en: 225; time: 518671, en: 193; time: 518670, en: 195; time: 511483, en: 193;"
     private fun decodeHistory(historyEncRaw: ByteArray): List<HistoryEvent> {
         val asStr = historyEncRaw.decodeToString()
-        // TODO: use json deserialization
+        // TODO: use json deserialization?
         val events = mutableListOf<HistoryEvent>()
         val eventsAsStr = asStr.split(';')
         for (eventAsStr in eventsAsStr) {

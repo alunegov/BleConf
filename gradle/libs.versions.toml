@@ -1,18 +1,8 @@
 [versions]
 compose = "1.0.0-beta09"
-mvikotlin = "2.0.3"
-decompose = "0.2.6"
-kable = "0.6.0"
+kable = "0.7.0"
 
 [libraries]
-mvikotlin-core = { module = "com.arkivanov.mvikotlin:mvikotlin", version.ref = "mvikotlin" }
-mvikotlin-coroutines = { module = "com.arkivanov.mvikotlin:mvikotlin-extensions-coroutines", version.ref = "mvikotlin" }
-mvikotlin-rx = { module = "com.arkivanov.mvikotlin:rx", version.ref = "mvikotlin" }
-mvikotlin-main = { module = "com.arkivanov.mvikotlin:mvikotlin-main", version.ref = "mvikotlin" }
-
-decompose-core = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
-decompose-compose-jetpack = { module = "com.arkivanov.decompose:extensions-compose-jetpack", version.ref = "decompose" }
-
 kable-core = { module = "com.juul.kable:core", version.ref = "kable" }
 
 [bundles]
