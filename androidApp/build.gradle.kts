@@ -9,7 +9,6 @@ group = "me.alexander"
 version = "1.0"
 
 dependencies {
-    implementation(project(":shared"))
     implementation("androidx.appcompat:appcompat:1.3.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
     implementation("androidx.compose.ui:ui:1.0.0-beta09")
