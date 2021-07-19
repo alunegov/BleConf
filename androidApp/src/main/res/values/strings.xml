@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BleConf</string>
+    <string name="no_servers">Scanning…</string>
+    <string name="unknown_server_name">Unknown</string>
+    <string name="server_rssi">%d dB</string>
+    <string name="loading">Loading…</string>
+    <string name="no_sensors">No sensors</string>
+    <string name="sensor_coeff">Coeff.: %s</string>
+    <string name="sensors_enability">Active sensors:</string>
+    <string name="sensors_enabilty_changes">Active sensors changes:</string>
+    <string name="no_events">No events</string>
+    <string name="system_time">System time</string>
+    <string name="system_conf">Сonf</string>
+    <string name="apply_conf">Apply</string>
+    <string name="authorization">Enter password to change server settings.</string>
+    <string name="do_auth">Auth</string>
+    <string name="adc_coeff">AdcCoeff</string>
+    <string name="adc_emon_num">AdcEmonNum</string>
+    <string name="adc_aver_num">AdcAverNum</string>
+    <string name="adc_imba_num">AdcImbaNum</string>
+    <string name="adc_imba_min_current">AdcImbaMinCurrent</string>
+    <string name="adc_imba_min_swing">AdcImbaMinSwing</string>
+    <string name="adc_imba_threshold">AdcImbaThreshold</string>
+    <string name="sensor_state">State: </string>
+    <string name="sensor_state_bad">bad</string>
+    <string name="sensor_state_good">good</string>
+    <string name="sensor_state_unknown">unknown</string>
+    <string name="sensor_state_unsopported">unsupp. (%d)</string>
+    <string name="server_sensors">Sensors</string>
+    <string name="server_history">History</string>
+    <string name="server_conf">Conf</string>
+</resources>

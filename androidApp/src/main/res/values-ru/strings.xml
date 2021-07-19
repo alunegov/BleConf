@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BleConf</string>
+    <string name="no_servers">Сканирование…</string>
+    <string name="unknown_server_name">Неизвестно</string>
+    <string name="server_rssi">%d дБ</string>
+    <string name="loading">Загрузка…</string>
+    <string name="no_sensors">Датчики отсутствуют</string>
+    <string name="sensor_coeff">Коэфф.: %s</string>
+    <string name="sensors_enability">Активные датчики:</string>
+    <string name="sensors_enabilty_changes">Изменение активных датчиков:</string>
+    <string name="no_events">События отсутствуют</string>
+    <string name="system_time">Системное время</string>
+    <string name="system_conf">Настройки</string>
+    <string name="apply_conf">Применить</string>
+    <string name="authorization">Для изменения настроек сервера необходимо ввести пароль.</string>
+    <string name="do_auth">Auth</string>
+    <string name="adc_coeff">AdcCoeff</string>
+    <string name="adc_emon_num">AdcEmonNum</string>
+    <string name="adc_aver_num">AdcAverNum</string>
+    <string name="adc_imba_num">AdcImbaNum</string>
+    <string name="adc_imba_min_current">AdcImbaMinCurrent</string>
+    <string name="adc_imba_min_swing">AdcImbaMinSwing</string>
+    <string name="adc_imba_threshold">AdcImbaThreshold</string>
+    <string name="sensor_state">"Сост.: "</string>
+    <string name="sensor_state_bad">плохое</string>
+    <string name="sensor_state_good">хорошее</string>
+    <string name="sensor_state_unknown">неопред.</string>
+    <string name="sensor_state_unsopported">неподдерж. (%d)</string>
+    <string name="server_sensors">Датчики</string>
+    <string name="server_history">История</string>
+    <string name="server_conf">Настройки</string>
+</resources>

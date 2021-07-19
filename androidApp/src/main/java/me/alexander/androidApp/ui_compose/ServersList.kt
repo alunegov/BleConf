@@ -11,10 +11,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import me.alexander.androidApp.R
 import me.alexander.androidApp.ServersListViewModel
 import me.alexander.androidApp.domain.Server
 import me.alexander.androidApp.domain.ServersModel
@@ -54,7 +55,7 @@ fun ServersListScreen(
     Column {
         TopAppBar(
             title = {
-                Text("BleConn")
+                Text(stringResource(R.string.app_name))
             },
         )
 
@@ -74,7 +75,7 @@ fun ServersListScreen(
                             .padding(8.dp),
                     ) {
                         Text(
-                            text = server.name ?: "Unknown",
+                            text = server.name ?: stringResource(R.string.unknown_server_name),
                             style = MaterialTheme.typography.h5,
                         )
 
@@ -88,7 +89,7 @@ fun ServersListScreen(
                             )
 
                             Text(
-                                text = String.format("%d dB", server.rssi),
+                                text = stringResource(R.string.server_rssi, server.rssi),
                                 modifier = Modifier.weight(1.0f),
                                 style = MaterialTheme.typography.body1,
                             )
@@ -97,7 +98,7 @@ fun ServersListScreen(
                 }
             }
         } else {
-            EmptyPlaceHolder("No servers/scanning...")
+            EmptyPlaceHolder(stringResource(R.string.no_servers))
         }
     }
 }

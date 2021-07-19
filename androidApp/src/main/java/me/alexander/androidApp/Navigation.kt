@@ -5,8 +5,8 @@ sealed class RootScreen(val route: String) {
     object Server : RootScreen("B")
 }
 
-sealed class ServerScreen(val route: String, val caption: String, val IconId: Int) {
-    object Sensors : ServerScreen("B1", "Sensors", 1)
-    object History : ServerScreen("B2", "History", 2)
-    object Conf : ServerScreen("B3", "Conf", 3)
+sealed class ServerScreen(val route: String, val captionResId: Int, val IconId: Int) {
+    object Sensors : ServerScreen("B1", R.string.server_sensors, 1)
+    object History : ServerScreen("B2", R.string.server_history, 2)
+    object Conf : ServerScreen("B3", R.string.server_conf, 3)
 }

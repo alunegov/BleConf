@@ -28,11 +28,11 @@ internal const val STATES_SERVICE_UUID = "4834cad6-5043-4ed9-8d85-a277e72c8178" 
 //internal const val STATES_SENSORx_CH_UUID
 
 // Characteristic User Description
-internal const val CUD_DSC_UUID = "00002901-0000-1000-8000-00805f9b34fb";
+internal const val CUD_DSC_UUID = "00002901-0000-1000-8000-00805f9b34fb"
 // Characteristic Presentation Format
-//internal const val CPF_DSC_UUID = "00002904-0000-1000-8000-00805f9b34fb";
+//internal const val CPF_DSC_UUID = "00002904-0000-1000-8000-00805f9b34fb"
 // Код дескриптора, "говорящего" что у датчика есть коэффициент
-internal const val WITHCOEFF_DSC_UUID = "0000c01d-0000-1000-8000-00805f9b34fb";
+internal const val WITHCOEFF_DSC_UUID = "0000c01d-0000-1000-8000-00805f9b34fb"
 
 private val CoeffChr = characteristicOf(
     service = CONF_SERVICE_UUID,

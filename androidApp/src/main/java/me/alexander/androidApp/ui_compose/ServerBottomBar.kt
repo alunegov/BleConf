@@ -10,12 +10,13 @@ import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import me.alexander.androidApp.RootScreen
 import me.alexander.androidApp.ServerScreen
 
-private const val TAG = "ServerBottomBar"
+//private const val TAG = "ServerBottomBar"
 
 val serverScreenItems = listOf(
     ServerScreen.Sensors,
@@ -40,7 +41,7 @@ fun ServerBottomBar(
                         3 -> Icon(Icons.Filled.Settings, null)
                     }
                 },
-                label = { Text(it.caption) },
+                label = { Text(stringResource(it.captionResId)) },
             )
         }
     }

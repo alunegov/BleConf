@@ -15,6 +15,8 @@ import kotlin.math.abs
 
 private const val TAG = "ServerViewModel"
 
+private const val CONF_PWD = "7777"
+
 data class SensorsModel(
     val sensors: List<Sensor> = emptyList(),
     val errorText: String = "",
@@ -41,8 +43,8 @@ data class TimeModel(
 )
 
 class ServerViewModel(
-    private val bleConn: BleConn,
-    private val address: String,
+    bleConn: BleConn,
+    address: String,
 ) : ViewModel() {
     private val _sensors = MutableStateFlow(SensorsModel(loading = true))
     val sensors = _sensors.asStateFlow()
@@ -193,10 +195,10 @@ class ServerViewModel(
     fun authConf(pwd: String) {
         Log.d(TAG, "authConf")
         // TODO: encrypt pwd
-        if (pwd == "7777") {
+        if (pwd == CONF_PWD) {
             _conf.value = ConfModel(isAuthed = true)
         } else {
-            _conf.value = ConfModel(isAuthed = false, errorText = "Password do not match")
+            _conf.value = ConfModel(isAuthed = false, errorText = "Wrong password")  // TODO: l10n
         }
     }
 

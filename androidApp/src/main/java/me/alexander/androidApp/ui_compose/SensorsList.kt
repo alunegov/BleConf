@@ -11,14 +11,17 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import me.alexander.androidApp.R
 import me.alexander.androidApp.SensorsModel
 import me.alexander.androidApp.ServerScreen
 import me.alexander.androidApp.ServerViewModel
 import me.alexander.androidApp.TimeModel
 import me.alexander.androidApp.domain.Sensor
+import java.text.NumberFormat
 
 //private const val TAG = "SensorsList"
 
@@ -70,7 +73,7 @@ fun SensorsListScreen(
         }
 
         if (sensorsModel.loading) {
-            EmptyPlaceHolder("Loading...")
+            EmptyPlaceHolder(stringResource(R.string.loading))
         } else {
             if (sensorsModel.sensors.isNotEmpty()) {
                 LazyColumn(
@@ -99,20 +102,27 @@ fun SensorsListScreen(
                                 Row(
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Text(
-                                        text = "State: " + when (sensor.state) {
-                                            0 -> "bad"
-                                            1 -> "good"
-                                            2 -> "unknown"
-                                            else -> "unsupported ${sensor.state}"
-                                        },
-                                        modifier = Modifier.weight(1.0f),
-                                        style = MaterialTheme.typography.body1,
-                                    )
+                                    Row(modifier = Modifier.weight(1.0f)) {
+                                        Text(
+                                            text = stringResource(R.string.sensor_state),
+                                            style = MaterialTheme.typography.body1,
+                                        )
+
+                                        Text(
+                                            text = when (sensor.state) {
+                                                0 -> stringResource(R.string.sensor_state_bad)
+                                                1 -> stringResource(R.string.sensor_state_good)
+                                                2 -> stringResource(R.string.sensor_state_unknown)
+                                                else -> stringResource(R.string.sensor_state_unsopported, sensor.state)
+                                            },
+                                            style = MaterialTheme.typography.body1,
+                                        )
+                                    }
 
                                     if (sensor.coeff != null) {
+                                        val formattedCoeff = NumberFormat.getInstance().format(sensor.coeff)
                                         Text(
-                                            text = "Coeff: " + sensor.coeff.toString(),
+                                            text = stringResource(R.string.sensor_coeff, formattedCoeff),
                                             modifier = Modifier.weight(1.0f),
                                             style = MaterialTheme.typography.body1,
                                         )
@@ -123,7 +133,7 @@ fun SensorsListScreen(
                     }
                 }
             } else {
-                EmptyPlaceHolder("No sensors")
+                EmptyPlaceHolder(stringResource(R.string.no_sensors))
             }
         }
 

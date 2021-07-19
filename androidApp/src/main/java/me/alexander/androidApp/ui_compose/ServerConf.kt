@@ -8,12 +8,15 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import me.alexander.androidApp.*
+import me.alexander.androidApp.R
 import me.alexander.androidApp.domain.Conf
 import java.util.*
 
@@ -146,7 +149,7 @@ fun ServerConfEdit(
         modifier = Modifier.verticalScroll(rememberScrollState()),
     ) {
         Text(
-            text = "System time",
+            text = stringResource(R.string.system_time),
             modifier = Modifier.padding(8.dp),
             style = MaterialTheme.typography.h5
         )
@@ -159,7 +162,7 @@ fun ServerConfEdit(
         )
 
         Text(
-            text = "System conf",
+            text = stringResource(R.string.system_conf),
             modifier = Modifier.padding(8.dp),
             style = MaterialTheme.typography.h5
         )
@@ -167,13 +170,13 @@ fun ServerConfEdit(
         Divider()
 
         listOf(
-            ConfItem(adcCoeff, "AdcCoeff"),
-            ConfItem(adcEmonNum, "AdcEmonNum"),
-            ConfItem(adcAverNum, "AdcAverNum"),
-            ConfItem(adcImbaNum, "AdcImbaNum"),
-            ConfItem(adcImbaMinCurrent, "AdcImbaMinCurrent"),
-            ConfItem(adcImbaMinSwing, "AdcImbaMinSwing"),
-            ConfItem(adcImbaThreshold, "AdcImbaThreshold"),
+            ConfItem(adcCoeff, stringResource(R.string.adc_coeff)),
+            ConfItem(adcEmonNum, stringResource(R.string.adc_emon_num)),
+            ConfItem(adcAverNum, stringResource(R.string.adc_aver_num)),
+            ConfItem(adcImbaNum, stringResource(R.string.adc_imba_num)),
+            ConfItem(adcImbaMinCurrent, stringResource(R.string.adc_imba_min_current)),
+            ConfItem(adcImbaMinSwing, stringResource(R.string.adc_imba_min_swing)),
+            ConfItem(adcImbaThreshold, stringResource(R.string.adc_imba_threshold)),
         ).forEach { confItem ->
             OutlinedTextField(
                 value = confItem.item.value,
@@ -202,9 +205,10 @@ fun ServerConfEdit(
             },
             modifier = Modifier
                 .align(Alignment.End)
+                .widthIn(100.dp)
                 .padding(8.dp),
         ) {
-            Text("SetConf")
+            Text(stringResource(R.string.apply_conf))
         }
     }
 }
@@ -220,11 +224,13 @@ fun ServerConfAuth(
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = "Authorization",
+            text = stringResource(R.string.authorization),
             modifier = Modifier
                 //.fillMaxWidth()
                 .padding(8.dp)
                 .align(Alignment.CenterHorizontally),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.h5,
         )
 
         OutlinedTextField(
@@ -242,9 +248,10 @@ fun ServerConfAuth(
             onClick = { onAuthClicked(pwd) },
             modifier = Modifier
                 .align(Alignment.End)
+                .widthIn(100.dp)
                 .padding(8.dp),
         ) {
-            Text("Auth")
+            Text(stringResource(R.string.do_auth))
         }
     }
 }

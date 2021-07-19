@@ -1,20 +1,27 @@
 package me.alexander.androidApp.ui_compose
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import me.alexander.androidApp.HistoryModel
+import me.alexander.androidApp.R
 import me.alexander.androidApp.ServerScreen
 import me.alexander.androidApp.ServerViewModel
 import me.alexander.androidApp.domain.HistoryEvent
@@ -62,7 +69,7 @@ fun ServerHistoryScreen(
         }
 
         if (model.loading) {
-            EmptyPlaceHolder("Loading...")
+            EmptyPlaceHolder(stringResource(R.string.loading))
         } else {
             if (model.events.isNotEmpty()) {
                 LazyColumn(
@@ -79,37 +86,54 @@ fun ServerHistoryScreen(
                                 style = MaterialTheme.typography.h5,
                             )
 
-                            Text("Включенность датчиков:")
+                            Text(stringResource(R.string.sensors_enability))
+
+                            Spacer(Modifier.size(8.dp))
 
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
-                                for (i in 0..7) {
-                                    val en = (event.en and (1 shl i)) != 0
+                                val enabledColor = SwitchDefaults.colors().trackColor(
+                                    enabled = true,
+                                    checked = true
+                                ).value
+                                val disabledColor = SwitchDefaults.colors().trackColor(
+                                    enabled = true,
+                                    checked = false
+                                ).value
 
-                                    Spacer(Modifier.size(16.dp))
+                                for (i in 0..7) {
+                                    Spacer(Modifier.size(8.dp))
 
                                     Column(
                                         modifier = Modifier.weight(1.0f),
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                     ) {
-                                        Text((i + 1).toString(), color = if (en) Color.Unspecified else Color.Gray)
+                                        val en = (event.en and (1 shl i)) != 0
 
-                                        if (en) {
-                                            Text("on")
-                                        } else {
-                                            Text("off", color = Color.Gray)
+                                        Box(
+                                            contentAlignment = Alignment.Center,
+                                            modifier = Modifier
+                                                .clip(CircleShape)
+                                                .background(if (en) enabledColor else disabledColor),
+                                        ) {
+                                            Text(
+                                                text = (i + 1).toString(),
+                                                modifier = Modifier.defaultMinSize(24.dp),
+                                                color = if (en) MaterialTheme.colors.onSecondary else MaterialTheme.colors.onSurface,
+                                                textAlign = TextAlign.Center,
+                                            )
                                         }
                                     }
                                 }
                             }
 
-                            // TODO: Text("Изменение включенности:")
+                            // TODO: Text(stringResource(R.string.sensors_enabilty_changes))
                         }
                     }
                 }
             } else {
-                EmptyPlaceHolder("No events")
+                EmptyPlaceHolder(stringResource(R.string.no_events))
             }
         }
 

@@ -6,11 +6,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import me.alexander.androidApp.domain.Server
 import me.alexander.androidApp.domain.ServersModel
 
-private const val TAG = "BleConnStub"
+//private const val TAG = "BleConnStub"
 
 object BleConnStub : BleConn {
     private val _servers = MutableStateFlow(ServersModel())
@@ -45,6 +46,7 @@ object BleConnStub : BleConn {
     }
 
     override fun getServerConn(id: String, scope: CoroutineScope): BleServerConn {
-        return _serversConns[id] ?: BleServerConnStub(id).also { _serversConns[id] = it }
+        val server = _servers.value.servers.first { it.address == id }
+        return _serversConns[id] ?: BleServerConnStub(server.name ?: "Noname" ).also { _serversConns[id] = it }
     }
 }

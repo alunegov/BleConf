@@ -20,7 +20,7 @@ private const val TAG = "BleConnImpl"
 /*public actual */fun mac(adv: Advertisement): String = adv.address
 
 class BleConnImpl(
-    val scanner: Scanner = Scanner(),
+    private val scanner: Scanner = Scanner(),
     val logger: Logger? = null,
 ) : BleConn {
     private val _intServers = hashMapOf<String, IntServer>()
@@ -88,7 +88,7 @@ class BleConnImpl(
         // TODO: check id presence
         val adv = _intServers[id]?.adv!!
         return BleServerConnImpl(
-            adv.name ?: "Noname",
+            adv.name ?: "Noname",  // TODO: l10n
             scope.peripheral(adv),
             logger,
         )

@@ -8,7 +8,7 @@ import me.alexander.androidApp.domain.*
 class BleServerConnStub(
     override val serverName: String,
 ) : BleServerConn {
-    private val sensors = hashMapOf<String, Sensor>(
+    private val sensors = hashMapOf(
         "1" to Sensor("1", "Sensor 1", true, 2),
         "2" to Sensor("2", "Sensor 2", false, 2),
         "3" to Sensor("3", "Sensor 3", false, 2),
@@ -20,12 +20,12 @@ class BleServerConnStub(
     )
 
     private val history = mutableListOf<HistoryEvent>(
-        HistoryEvent(System.currentTimeMillis() - 13000, 0b11000001),
+        //HistoryEvent(System.currentTimeMillis() / 1000 - 13000, 0b11000001),
     )
 
     private var conf = Conf()
 
-    private var time = System.currentTimeMillis()
+    private var time = System.currentTimeMillis() / 1000
 
     override val coeff: Flow<Float> = flow {
         var coeff = 0.3f
@@ -64,7 +64,7 @@ class BleServerConnStub(
         var en = 0
         sensors.forEachIndexed { i, it -> if (it.enabled) en = en or (1 shl i) }
 
-        history += HistoryEvent(System.currentTimeMillis(), en)
+        history += HistoryEvent(System.currentTimeMillis() / 1000, en)
     }
 
     override suspend fun getHistory(): List<HistoryEvent> = history.reversed()
