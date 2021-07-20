@@ -18,7 +18,7 @@
 - [x] отдельный текст для пустых списков
 - [x] l10n
 - [x] описание или имя датчика через ble-дескриптор
-- [ ] core.splashscreen
+- [ ] core.splashscreen (API level 31)
 
 ## ext
 
