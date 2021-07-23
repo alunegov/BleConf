@@ -11,9 +11,10 @@ version = "1.0"
 dependencies {
     implementation("androidx.appcompat:appcompat:1.3.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
-    implementation("androidx.compose.ui:ui:1.0.0-beta09")
+    implementation("androidx.compose.ui:ui:1.0.0-rc02")
     // Tooling support (Previews, etc.)
-    implementation("androidx.compose.ui:ui-tooling:${libs.versions.compose.get()}")
+    implementation("androidx.compose.ui:ui-tooling-preview:${libs.versions.compose.get()}")
+    debugImplementation("androidx.compose.ui:ui-tooling:${libs.versions.compose.get()}")
     // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
     implementation("androidx.compose.foundation:foundation:${libs.versions.compose.get()}")
     // Material Design
