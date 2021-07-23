@@ -25,6 +25,12 @@ import java.text.NumberFormat
 
 //private const val TAG = "SensorsList"
 
+/**
+ * Окно Список датчиков.
+ *
+ * @param viewModel VM.
+ * @param navController Navigation.
+ */
 @Composable
 fun SensorsList(
     viewModel: ServerViewModel,
@@ -55,6 +61,17 @@ fun SensorsList(
     )
 }
 
+/**
+ * Окно Список датчиков (preview-friendly).
+ *
+ * @param serverName Имя сервера.
+ * @param sensorsModel Модель списка датчиков.
+ * @param timeModel Модель системного времени сервера.
+ * @param onSensorChecked Обработчик включения/выключения датчика.
+ * @param onBackClicked Обработчик навигации назад.
+ * @param currentRoute Текущий роут.
+ * @param onRouteClicked Обработчик навигации между окнами сервера.
+ */
 @Composable
 fun SensorsListScreen(
     serverName: String,

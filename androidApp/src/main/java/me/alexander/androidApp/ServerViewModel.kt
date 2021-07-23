@@ -15,20 +15,45 @@ import kotlin.math.abs
 
 private const val TAG = "ServerViewModel"
 
+/**
+ * Пароль для просмотра/редактирования настроек сервера.
+ */
 private const val CONF_PWD = "7777"
 
+/**
+ * Модель данных для окна Датчики.
+ *
+ * @property sensors Список датчиков.
+ * @property errorText Текст ошибки.
+ * @property loading Флаг: Первоначальная загрузка данных.
+ */
 data class SensorsModel(
     val sensors: List<Sensor> = emptyList(),
     val errorText: String = "",
     val loading: Boolean = false,
 )
 
+/**
+ * Модель данных для окна История.
+ *
+ * @property events Список событий.
+ * @property errorText Текст ошибки.
+ * @property loading Флаг: Первоначальная загрузка данных.
+ */
 data class HistoryModel(
     val events: List<HistoryEvent> = emptyList(),
     val errorText: String = "",
     val loading: Boolean = false,
 )
 
+/**
+ * Модель данных для окна Настройки.
+ *
+ * @property isAuthed Флаг: Авторизация выполнена.
+ * @property conf Настройки.
+ * @property errorText Текст ошибки.
+ * @property loading Флаг: Первоначальная загрузка данных.
+ */
 data class ConfModel(
     val isAuthed: Boolean = false,
     val conf: Conf = Conf(),
@@ -36,12 +61,31 @@ data class ConfModel(
     val loading: Boolean = false,
 )
 
+/**
+ * Модель данных со временем для окон Датчики и Настройки.
+ *
+ * @property time Системное время.
+ * @property errorText Текст ошибки.
+ * @property loading Флаг: Первоначальная загрузка данных.
+ */
 data class TimeModel(
     val time: Long = 0,
     val errorText: String = "",
     val loading: Boolean = false,
 )
 
+/**
+ * VM окон сервера: Датчики, История и Настройки.
+ *
+ * Пользователи должны подписаться на:
+ * - [sensors] и вызвать [reloadSensors], изменение активности через [setEnabled]
+ * - [history] и вызвать [reloadHistory]
+ * - [conf] и вызвать [reloadConf] (перед этим нужно авторизироваться с помощью [authConf]), изменение настроек через [setConf]
+ * - [time] и вызвать [reloadTime], синхронизация времени через [syncTime].
+ *
+ * @property bleConn Реализация [BleConn].
+ * @property address MAC-адрес сервера.
+ */
 class ServerViewModel(
     bleConn: BleConn,
     address: String,
@@ -65,6 +109,9 @@ class ServerViewModel(
 
     private var _coeffCollectJob: Job? = null
 
+    /**
+     * Имя сервера.
+     */
     val serverName: String
         get() = bleServerConn.serverName
 
@@ -84,12 +131,18 @@ class ServerViewModel(
         Log.d(TAG, "onCleared post")
     }
 
+    /**
+     * Подключение к серверу.
+     */
     private suspend fun ensureConnected() {
         Log.d(TAG, "ensureConnected")
         bleServerConn.connect()
         Log.d(TAG, "ensureConnected post")
     }
 
+    /**
+     * Загружает датчики [sensors]. Также запускает корутину отслеживания коэффициента adc-канала.
+     */
     fun reloadSensors() {
         Log.d(TAG, "reloadSensors")
         _bleScope.launch {
@@ -134,6 +187,9 @@ class ServerViewModel(
         Log.d(TAG, "reloadSensors post")
     }
 
+    /**
+     * Прекращает "наблюдение" за датчиками - останавливает корутину отслеживания коэффициента adc-канала.
+     */
     fun stopObserveSensors() {
         Log.d(TAG, "stopObserveSensors")
         _coeffCollectJob?.cancel()
@@ -141,6 +197,9 @@ class ServerViewModel(
         Log.d(TAG, "stopObserveSensors post")
     }
 
+    /**
+     * Задаёт флаг активности для датчика.
+     */
     fun setEnabled(id: String, en: Boolean) {
         Log.d(TAG, "toggleEnabled for $id to $en")
         _bleScope.launch {
@@ -170,6 +229,9 @@ class ServerViewModel(
         Log.d(TAG, "toggleEnabled post")
     }
 
+    /**
+     * Загружает историю [history].
+     */
     fun reloadHistory() {
         Log.d(TAG, "reloadHistory")
         _bleScope.launch {
@@ -191,7 +253,11 @@ class ServerViewModel(
         Log.d(TAG, "reloadHistory post")
     }
 
-    // Авторизация для просмотра/редактирования системных настроек сервера
+    /**
+     * Авторизация для просмотра/редактирования системных настроек сервера.
+     *
+     * @param pwd Введённый пароль.
+     */
     fun authConf(pwd: String) {
         Log.d(TAG, "authConf")
         // TODO: encrypt pwd
@@ -202,6 +268,9 @@ class ServerViewModel(
         }
     }
 
+    /**
+     * Загружает настройки [conf].
+     */
     fun reloadConf() {
         Log.d(TAG, "reloadConf")
         assert(_conf.value.isAuthed)
@@ -219,6 +288,9 @@ class ServerViewModel(
         Log.d(TAG, "reloadConf post")
     }
 
+    /**
+     * Задаёт настройки.
+     */
     fun setConf(conf: Conf) {
         Log.d(TAG, "setConf")
         assert(_conf.value.isAuthed)
@@ -239,6 +311,9 @@ class ServerViewModel(
         Log.d(TAG, "setConf post")
     }
 
+    /**
+     * Загружает время на сервере [time].
+     */
     fun reloadTime() {
         Log.d(TAG, "reloadTime")
         _bleScope.launch {

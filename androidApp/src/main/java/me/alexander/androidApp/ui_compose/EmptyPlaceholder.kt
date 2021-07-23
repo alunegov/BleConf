@@ -9,6 +9,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
+/**
+ * Заглушка для пустых списков.
+ */
 @Composable
 fun ColumnScope.EmptyPlaceHolder(text: String) {
     Column(

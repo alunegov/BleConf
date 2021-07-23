@@ -22,6 +22,12 @@ import java.util.*
 
 //private const val TAG = "ServerConf"
 
+/**
+ * Окно История.
+ *
+ * @param viewModel VM.
+ * @param navController Navigation.
+ */
 @Composable
 fun ServerConfEntry(
     viewModel: ServerViewModel,
@@ -53,6 +59,18 @@ fun ServerConfEntry(
     )
 }
 
+/**
+ * Окно История (preview-friendly).
+ *
+ * @param serverName Имя сервера.
+ * @param confModel Модель настроек.
+ * @param timeModel Модель системного времени сервера.
+ * @param onAuthClicked Обработчик авторизации.
+ * @param onSetConfClicked Обработчик задания настроек.
+ * @param onBackClicked Обработчик навигации назад.
+ * @param currentRoute Текущий роут.
+ * @param onRouteClicked Обработчик навигации между окнами сервера.
+ */
 @Composable
 fun ServerConfEntryScreen(
     serverName: String,
@@ -131,6 +149,13 @@ fun ServerConfEntryScreenPreview_NotAuthed() {
     )
 }
 
+/**
+ * Настройки сервера.
+ *
+ * @param confModel Модель настроек.
+ * @param timeModel Модель системного времени сервера.
+ * @param onSetConfClicked Обработчик задания настроек.
+ */
 @Composable
 fun ServerConfEdit(
     confModel: ConfModel,
@@ -213,6 +238,11 @@ fun ServerConfEdit(
     }
 }
 
+/**
+ * Авторизация
+ *
+ * @param onAuthClicked Обработчик авторизации.
+ */
 @Composable
 fun ServerConfAuth(
     onAuthClicked: (String) -> Unit,

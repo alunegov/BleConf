@@ -2,6 +2,8 @@ package me.alexander.androidApp.domain
 
 /**
  * Системные настройки сервера
+ *
+ * Аналог структуры BleApp::Server::Services::Conf в проекте сервера.
  */
 data class Conf(
     val adcCoeff: Float = 1.0f,

@@ -5,6 +5,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import me.alexander.androidApp.domain.*
 
+/**
+ * Заглушка подключения к серверу (BLE-серверу).
+ *
+ * Работает без наличия BT-адаптера, возвращает рандомные датчики, историю, каждые 3 с обновляет значение коээфициента
+ * adc-канала. На время жизни хранит изменения активных датчиков, историю, настройки и системное время.
+ */
 class BleServerConnStub(
     override val serverName: String,
 ) : BleServerConn {
@@ -20,7 +26,7 @@ class BleServerConnStub(
     )
 
     private val history = mutableListOf<HistoryEvent>(
-        //HistoryEvent(System.currentTimeMillis() / 1000 - 13000, 0b11000001),
+        HistoryEvent(System.currentTimeMillis() / 1000 - 13000, 0b11000001),
     )
 
     private var conf = Conf()

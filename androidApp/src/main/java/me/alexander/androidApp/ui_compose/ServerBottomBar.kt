@@ -18,12 +18,18 @@ import me.alexander.androidApp.ServerScreen
 
 //private const val TAG = "ServerBottomBar"
 
+/**
+ * Окна сервера.
+ */
 val serverScreenItems = listOf(
     ServerScreen.Sensors,
     ServerScreen.History,
     ServerScreen.Conf,
 )
 
+/**
+ * Нижняя панель окон сервера с кнопками навигации между окнами сервера.
+ */
 @Composable
 fun ServerBottomBar(
     currentRoute: String?,

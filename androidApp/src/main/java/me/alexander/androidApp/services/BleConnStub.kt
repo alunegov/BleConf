@@ -13,6 +13,11 @@ import me.alexander.androidApp.domain.ServersModel
 
 //private const val TAG = "BleConnStub"
 
+/**
+ * Заглушка доступа к BT для поиска серверов.
+ *
+ * Работает без наличия BT-адаптера, возвращает рандомные сервера каждые 555 мс.
+ */
 object BleConnStub : BleConn {
     private val _servers = MutableStateFlow(ServersModel())
     override val servers: StateFlow<ServersModel> = _servers.asStateFlow()

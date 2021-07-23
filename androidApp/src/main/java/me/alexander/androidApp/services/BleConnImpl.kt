@@ -17,8 +17,22 @@ private const val TAG = "BleConnImpl"
 
 //public expect fun mac(adv: Advertisement): String
 
+/**
+ * Извлекает MAC-адрес сервера из его "рекламы".
+ */
 /*public actual */fun mac(adv: Advertisement): String = adv.address
 
+private const val ServerTimeoutThreshold = 5000
+
+/**
+ * Реализация доступа к BT-адаптеру для поиска серверов через Kable.
+ *
+ * "Рекламирующиеся" сервера из потока от сканнера помещаются в список [_intServers]. При каждом обновлении он
+ * "выдаётся" наружу через [servers], и происходит отбрасывание серверов, от которых не было "реклам" в течении 5 с.
+ *
+ * @property scanner Реализация [Scanner].
+ * @property logger Реализация [Logger].
+ */
 class BleConnImpl(
     private val scanner: Scanner = Scanner(),
     val logger: Logger? = null,
@@ -58,7 +72,7 @@ class BleConnImpl(
                         }
 
                         val timeThreshold = System.currentTimeMillis()
-                        _intServers.entries.removeIf { (it.value.time + 5000) <= timeThreshold }
+                        _intServers.entries.removeIf { (it.value.time + ServerTimeoutThreshold) <= timeThreshold }
 
                         _servers.value = ServersModel(servers = _intServers.values.map { Server(mac(it.adv), it.adv.name, it.adv.rssi) })
                     }
@@ -94,6 +108,12 @@ class BleConnImpl(
         )
     }
 
+    /**
+     * Внутренне описание сервера.
+     *
+     * @param adv "Реклама" сервера.
+     * @param time Время получения последней "рекламы".
+     */
     internal data class IntServer(
         val adv: Advertisement,
         var time: Long,

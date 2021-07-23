@@ -39,6 +39,14 @@ private val CoeffChr = characteristicOf(
     characteristic = CONF_COEFF_CH_UUID,
 )
 
+/**
+ * Реализация подключения к серверу (BLE-серверу) через Kable.
+ *
+ * Коды ble-сервисов/характеристик/дескрипторов и форматы данных задаются в модуле BleConnImpl.cpp в проекте сервера.
+ *
+ * @param periph Реализация [Peripheral].
+ * @param logger Реализация [Logger].
+ */
 class BleServerConnImpl(
     override val serverName: String,
     private val periph: Peripheral,
@@ -93,12 +101,12 @@ class BleServerConnImpl(
     }
 
     /**
-     * Загружает датчик
+     * Загружает датчик.
      *
-     * @param chara Ble-характеристика датчика
-     * @param charaIndex Индекс ble-характеристики датчика
-     * @param enabledEncRaw "Включенность" датчиков
-     * @return Датчик
+     * @param chara Ble-характеристика датчика.
+     * @param charaIndex Индекс ble-характеристики датчика.
+     * @param enabledEncRaw "Включенность" датчиков.
+     * @return Датчик.
      */
     private suspend fun loadSensor(chara: DiscoveredCharacteristic, charaIndex: Int, enabledEncRaw: ByteArray): Sensor {
         val nameDsc = chara.descriptors.firstOrNull { it.descriptorUuid.toString() == CUD_DSC_UUID }
@@ -133,6 +141,12 @@ class BleServerConnImpl(
         )
     }
 
+    /**
+     * Извлекает имя датчика из кода ble-характеристики.
+     *
+     * Имя хранится в виде 8-байтного значения в последней части GUID (4834cad6-5043-4ed9-0000-000000000001 -> 1). По
+     * аналогии с функцией BleApp::Shared::BleHelper::ExtractId в проекте сервера.
+     */
     private fun extractName(id: Uuid): String {
         // TODO: ByteOrder.LITTLE_ENDIAN?
         return ByteBuffer.wrap(id.bytes).getLong(8).toString()
@@ -159,7 +173,10 @@ class BleServerConnImpl(
         return decodeHistory(historyEncRaw)
     }
 
-    // example: "time: 587093, en: 193; time: 587088, en: 225; time: 518671, en: 193; time: 518670, en: 195; time: 511483, en: 193;"
+    /**
+     * Раскодирует закодированную строку с историей. Кодирование происходит в функции BleApp::Server::Domain::CoreImpl::GetUpdates
+     * на сервере. Пример сторки: "time: 587093, en: 193; time: 587088, en: 225; time: 518671, en: 193; time: 518670, en: 195; time: 511483, en: 193;".
+     */
     private fun decodeHistory(historyEncRaw: ByteArray): List<HistoryEvent> {
         val asStr = historyEncRaw.decodeToString()
         // TODO: use json deserialization?
@@ -229,5 +246,8 @@ class BleServerConnImpl(
     }
 }
 
+/**
+ * Извлекает коэффициент.
+ */
 private inline val ByteArray.coeff: Float
     get() = ByteBuffer.wrap(this).order(ByteOrder.LITTLE_ENDIAN).getFloat()

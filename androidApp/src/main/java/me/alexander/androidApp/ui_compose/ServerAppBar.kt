@@ -8,6 +8,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 
+/**
+ * Верхняя панель окон сервера с именем сервера и кнопкой Назад.
+ */
 @Composable
 fun ServerAppBar(
     title: String,

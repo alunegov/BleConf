@@ -22,6 +22,13 @@ import me.alexander.androidApp.domain.ServersModel
 
 //private const val TAG = "ServersList"
 
+/**
+ * Окно Список серверов.
+ *
+ * @param isGranted Флаг: Разрешения для BT получены.
+ * @param viewModel VM.
+ * @param onServerClicked Обработчик события выбора сервера.
+ */
 @Composable
 fun ServersList(
     isGranted: State<Boolean>,
@@ -47,6 +54,12 @@ fun ServersList(
     )
 }
 
+/**
+ * Окно Список серверов (preview-friendly).
+ *
+ * @param model Модель списка серверов.
+ * @param onServerClicked Обработчик выбора сервера.
+ */
 @Composable
 fun ServersListScreen(
     model: ServersModel,

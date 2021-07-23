@@ -29,6 +29,12 @@ import java.util.*
 
 //private const val TAG = "ServerHistory"
 
+/**
+ * Окно Настройки.
+ *
+ * @param viewModel VM.
+ * @param navController Navigation.
+ */
 @Composable
 fun ServerHistory(
     viewModel: ServerViewModel,
@@ -53,6 +59,15 @@ fun ServerHistory(
     )
 }
 
+/**
+ * Окно Настройки (preview-friendly).
+ *
+ * @param serverName Имя сервера.
+ * @param model Модель истории.
+ * @param onBackClicked Обработчик навигации назад.
+ * @param currentRoute Текущий роут.
+ * @param onRouteClicked Обработчик навигации между окнами сервера.
+ */
 @Composable
 fun ServerHistoryScreen(
     serverName: String,

@@ -28,13 +28,22 @@ import me.alexander.androidApp.ui_compose.ServersList
 
 private const val TAG = "MainActivity"
 
+/**
+ * MAC-адрес выбранного сервера в окне Список серверов.
+ */
 // TODO: pass via nav args
 var gAddress: String = ""
 
+/**
+ * Объект для работы с BT-адаптером.
+ */
 val gBleConn = BleConnImpl(logger = LoggerImpl)
 //val gBleConn = BleConnStub
 
 class MainActivity : AppCompatActivity() {
+    /**
+     * Флаг: Разрешения для BT получены.
+     */
     private val _isGranted = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,6 +70,12 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
+/**
+ * Основное окно приложения. Реализует точку навигации.
+ *
+ * @param isGranted Флаг: Разрешения для BT получены.
+ * @param bleConn Реализация [BleConn].
+ */
 @Composable
 fun Root(isGranted: State<Boolean>, bleConn: BleConn) {
     val navController = rememberNavController()
@@ -98,7 +113,11 @@ fun Root(isGranted: State<Boolean>, bleConn: BleConn) {
     }
 }
 
-// https://stackoverflow.com/questions/64955859/scoping-states-in-jetpack-compose
+/**
+ * Возвращает VM родительского роута.
+ *
+ * https://stackoverflow.com/questions/64955859/scoping-states-in-jetpack-compose
+ */
 @Composable
 inline fun <reified VM: ViewModel> NavBackStackEntry.parentViewModel(
     navController: NavController,
