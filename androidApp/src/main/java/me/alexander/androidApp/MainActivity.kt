@@ -20,7 +20,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import me.alexander.androidApp.services.BleConn
 import me.alexander.androidApp.services.BleConnImpl
-import me.alexander.androidApp.services.BleConnStub
+//import me.alexander.androidApp.services.BleConnStub
 import me.alexander.androidApp.ui_compose.SensorsList
 import me.alexander.androidApp.ui_compose.ServerConfEntry
 import me.alexander.androidApp.ui_compose.ServerHistory

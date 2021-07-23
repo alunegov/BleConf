@@ -63,7 +63,7 @@ class BleServerConnImplTest {
 
     @Test
     fun setSensorsEnabilityTest() {
-        val sensors = listOf<Sensor>(
+        val sensors = listOf(
             Sensor("", "", true, 0),
             Sensor("", "", false, 0),
             Sensor("", "", false, 0),

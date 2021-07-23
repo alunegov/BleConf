@@ -6,7 +6,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import me.alexander.androidApp.domain.Server
 import me.alexander.androidApp.domain.ServersModel

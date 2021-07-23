@@ -25,7 +25,7 @@ class BleServerConnStub(
         "8" to Sensor("8", "Sensor 8", true, 2, 0.3f),
     )
 
-    private val history = mutableListOf<HistoryEvent>(
+    private val history = mutableListOf(
         HistoryEvent(System.currentTimeMillis() / 1000 - 13000, 0b11000001),
     )
 
