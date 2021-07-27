@@ -5,12 +5,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -105,7 +109,7 @@ fun ServerConfEntryScreen(
     }
 }
 
-@Preview
+@Preview(locale = "ru")
 @Composable
 fun ServerConfEntryScreenPreview_Authed() {
     ServerConfEntryScreen(
@@ -195,21 +199,28 @@ fun ServerConfEdit(
         Divider()
 
         listOf(
-            ConfItem(adcCoeff, stringResource(R.string.adc_coeff)),
-            ConfItem(adcEmonNum, stringResource(R.string.adc_emon_num)),
-            ConfItem(adcAverNum, stringResource(R.string.adc_aver_num)),
-            ConfItem(adcImbaNum, stringResource(R.string.adc_imba_num)),
-            ConfItem(adcImbaMinCurrent, stringResource(R.string.adc_imba_min_current)),
-            ConfItem(adcImbaMinSwing, stringResource(R.string.adc_imba_min_swing)),
-            ConfItem(adcImbaThreshold, stringResource(R.string.adc_imba_threshold)),
+            ConfItem(adcCoeff, stringResource(R.string.adc_coeff), stringResource(R.string.adc_coeff_helper)),
+            ConfItem(adcEmonNum, stringResource(R.string.adc_emon_num), stringResource(R.string.adc_emon_num_helper)),
+            ConfItem(adcAverNum, stringResource(R.string.adc_aver_num), stringResource(R.string.adc_aver_num_helper)),
+            ConfItem(adcImbaNum, stringResource(R.string.adc_imba_num), stringResource(R.string.adc_imba_num_helper)),
+            ConfItem(adcImbaMinCurrent, stringResource(R.string.adc_imba_min_current), stringResource(R.string.adc_imba_min_current_helper)),
+            ConfItem(adcImbaMinSwing, stringResource(R.string.adc_imba_min_swing), stringResource(R.string.adc_imba_min_swing_helper)),
+            ConfItem(adcImbaThreshold, stringResource(R.string.adc_imba_threshold), stringResource(R.string.adc_imba_threshold_helper)),
         ).forEach { confItem ->
-            OutlinedTextField(
+            val helperText: @Composable (() -> Unit)? =
+                if (confItem.helper.isNotEmpty()) {
+                    @Composable { Text(confItem.helper) }
+                }
+                else null
+
+            OutlinedTextFieldWithHelper(
                 value = confItem.item.value,
                 onValueChange = { confItem.item.value = it },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp),
                 label = { Text(confItem.label) },
+                helper = helperText,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
             )
@@ -230,7 +241,7 @@ fun ServerConfEdit(
             },
             modifier = Modifier
                 .align(Alignment.End)
-                .widthIn(100.dp)
+                .widthIn(150.dp)
                 .padding(8.dp),
         ) {
             Text(stringResource(R.string.apply_conf))
@@ -248,6 +259,7 @@ fun ServerConfAuth(
     onAuthClicked: (String) -> Unit,
 ) {
     var pwd by remember { mutableStateOf("") }
+    var pwdVisible by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -269,7 +281,12 @@ fun ServerConfAuth(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
-            visualTransformation = PasswordVisualTransformation(),
+            trailingIcon = {
+                IconButton(onClick = { pwdVisible = !pwdVisible }) {
+                    Icon(if (pwdVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff, null)
+                }
+            },
+            visualTransformation = if (pwdVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             singleLine = true,
         )
@@ -278,7 +295,7 @@ fun ServerConfAuth(
             onClick = { onAuthClicked(pwd) },
             modifier = Modifier
                 .align(Alignment.End)
-                .widthIn(100.dp)
+                .widthIn(150.dp)
                 .padding(8.dp),
         ) {
             Text(stringResource(R.string.do_auth))
@@ -289,4 +306,5 @@ fun ServerConfAuth(
 data class ConfItem(
     val item: MutableState<String>,
     val label: String,
+    val helper: String = "",
 )
