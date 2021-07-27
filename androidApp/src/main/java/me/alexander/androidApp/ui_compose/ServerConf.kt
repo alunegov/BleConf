@@ -1,5 +1,6 @@
 package me.alexander.androidApp.ui_compose
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -24,7 +25,7 @@ import me.alexander.androidApp.R
 import me.alexander.androidApp.domain.Conf
 import java.util.*
 
-//private const val TAG = "ServerConf"
+private const val TAG = "ServerConf"
 
 /**
  * Окно История.
@@ -166,6 +167,8 @@ fun ServerConfEdit(
     timeModel: TimeModel,
     onSetConfClicked: (Conf) -> Unit,
 ) {
+    //val conf = remember(confModel.conf) { mutableStateOf(confModel.conf.toValidatableConf()) }
+
     val adcCoeff = remember(confModel.conf.adcCoeff) { mutableStateOf(confModel.conf.adcCoeff.toString()) }
     val adcEmonNum = remember(confModel.conf.adcEmonNum) { mutableStateOf(confModel.conf.adcEmonNum.toString()) }
     val adcAverNum = remember(confModel.conf.adcAverNum) { mutableStateOf(confModel.conf.adcAverNum.toString()) }
@@ -206,6 +209,13 @@ fun ServerConfEdit(
             ConfItem(adcImbaMinCurrent, stringResource(R.string.adc_imba_min_current), stringResource(R.string.adc_imba_min_current_helper)),
             ConfItem(adcImbaMinSwing, stringResource(R.string.adc_imba_min_swing), stringResource(R.string.adc_imba_min_swing_helper)),
             ConfItem(adcImbaThreshold, stringResource(R.string.adc_imba_threshold), stringResource(R.string.adc_imba_threshold_helper)),
+            /*ConfItem(conf.value.adcCoeff, stringResource(R.string.adc_coeff), stringResource(R.string.adc_coeff_helper)),
+            ConfItem(conf.value.adcEmonNum, stringResource(R.string.adc_emon_num), stringResource(R.string.adc_emon_num_helper)),
+            ConfItem(conf.value.adcAverNum, stringResource(R.string.adc_aver_num), stringResource(R.string.adc_aver_num_helper)),
+            ConfItem(conf.value.adcImbaNum, stringResource(R.string.adc_imba_num), stringResource(R.string.adc_imba_num_helper)),
+            ConfItem(conf.value.adcImbaMinCurrent, stringResource(R.string.adc_imba_min_current), stringResource(R.string.adc_imba_min_current_helper)),
+            ConfItem(conf.value.adcImbaMinSwing, stringResource(R.string.adc_imba_min_swing), stringResource(R.string.adc_imba_min_swing_helper)),
+            ConfItem(conf.value.adcImbaThreshold, stringResource(R.string.adc_imba_threshold), stringResource(R.string.adc_imba_threshold_helper)),*/
         ).forEach { confItem ->
             val helperText: @Composable (() -> Unit)? =
                 if (confItem.helper.isNotEmpty()) {
@@ -228,16 +238,20 @@ fun ServerConfEdit(
 
         Button(
             onClick = {
-                // TODO: convert error
-                Conf(
-                    adcCoeff.value.toFloat(),
-                    adcEmonNum.value.toInt(),
-                    adcAverNum.value.toInt(),
-                    adcImbaNum.value.toInt(),
-                    adcImbaMinCurrent.value.toFloat(),
-                    adcImbaMinSwing.value.toFloat(),
-                    adcImbaThreshold.value.toFloat(),
-                ).also { onSetConfClicked(it) }
+                // TODO: pre validate Conf data
+                try {
+                    Conf(
+                        adcCoeff.value.toFloat(),
+                        adcEmonNum.value.toInt(),
+                        adcAverNum.value.toInt(),
+                        adcImbaNum.value.toInt(),
+                        adcImbaMinCurrent.value.toFloat(),
+                        adcImbaMinSwing.value.toFloat(),
+                        adcImbaThreshold.value.toFloat(),
+                    ).also { onSetConfClicked(it) }
+                } catch (e: Exception) {
+                    Log.d(TAG, e.toString())
+                }
             },
             modifier = Modifier
                 .align(Alignment.End)
@@ -248,6 +262,26 @@ fun ServerConfEdit(
         }
     }
 }
+
+/*data class ValidatableConf(
+    var adcCoeff: MutableState<String>,
+    var adcEmonNum: MutableState<String>,
+    var adcAverNum: MutableState<String>,
+    var adcImbaNum: MutableState<String>,
+    var adcImbaMinCurrent: MutableState<String>,
+    var adcImbaMinSwing: MutableState<String>,
+    var adcImbaThreshold: MutableState<String>,
+)
+
+fun Conf.toValidatableConf(): ValidatableConf {
+    return ValidatableConf()
+}*/
+
+data class ConfItem(
+    val item: MutableState<String>,
+    val label: String,
+    val helper: String = "",
+)
 
 /**
  * Авторизация
@@ -302,9 +336,3 @@ fun ServerConfAuth(
         }
     }
 }
-
-data class ConfItem(
-    val item: MutableState<String>,
-    val label: String,
-    val helper: String = "",
-)
