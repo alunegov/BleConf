@@ -67,9 +67,9 @@ class BleConnImpl(
 
                         // делаем фильтрацию "наших" устройств здесь, а не перед collect, п.ч. при "исчезновении"
                         // последнего устройства оно навсегда останется в списке (список не обнулится)
-                        if (adv.uuids.contains(uuidFrom(CONF_SERVICE_UUID))) {
+                        //if (adv.uuids.contains(uuidFrom(CONF_SERVICE_UUID)) or adv.uuids.contains(uuidFrom(STATES_SERVICE_UUID))) {
                             _intServers[adv.address] = IntServer(adv, System.currentTimeMillis())
-                        }
+                        //}
 
                         val timeThreshold = System.currentTimeMillis()
                         _intServers.entries.removeIf { (it.value.time + ServerTimeoutThreshold) <= timeThreshold }
