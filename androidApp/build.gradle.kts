@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "me.alexander"
-version = "1.0"
+version = "0.3"
 
 dependencies {
     implementation("androidx.appcompat:appcompat:1.3.1")
@@ -52,8 +52,8 @@ android {
         applicationId = "me.alexander.androidApp"
         minSdk = 24
         targetSdk = 30
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "0.3"
     }
     buildTypes {
         getByName("release") {
