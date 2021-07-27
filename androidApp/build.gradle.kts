@@ -9,7 +9,7 @@ group = "me.alexander"
 version = "1.0"
 
 dependencies {
-    implementation("androidx.appcompat:appcompat:1.3.0")
+    implementation("androidx.appcompat:appcompat:1.3.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
     implementation("androidx.compose.ui:ui:1.0.0-rc02")
     // Tooling support (Previews, etc.)
