@@ -80,7 +80,7 @@ class BleConnImpl(
                 logger?.d(TAG, ce.toString())
             } catch (e: Exception) {
                 logger?.d(TAG, e.toString())
-                _servers.value = ServersModel(errorText = e.toString())
+                _servers.value = ServersModel(errorText = e.message ?: e.toString())
             }
 
             logger?.d(TAG, "startScan launch post")

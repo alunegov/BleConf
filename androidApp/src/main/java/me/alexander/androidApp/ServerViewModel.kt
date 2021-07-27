@@ -158,7 +158,7 @@ class ServerViewModel(
                 _sensors.value = SensorsModel(sensors = bleServerConn.getSensors())
             } catch (e: Exception) {
                 Log.d(TAG, e.toString())
-                _sensors.value = SensorsModel(errorText = e.toString())
+                _sensors.value = SensorsModel(errorText = e.message ?: e.toString())
             }
         }
         if (_coeffCollectJob?.isActive != true) {
@@ -223,7 +223,7 @@ class ServerViewModel(
             } catch (e: Exception) {
                 Log.d(TAG, e.toString())
                 // TODO: reloadSensors?
-                _sensors.value = model.copy(errorText = e.toString())
+                _sensors.value = model.copy(errorText = e.message ?: e.toString())
             }
         }
         Log.d(TAG, "toggleEnabled post")
@@ -247,7 +247,7 @@ class ServerViewModel(
                 _history.value = HistoryModel(events = bleServerConn.getHistory())
             } catch (e: Exception) {
                 Log.d(TAG, e.toString())
-                _history.value = HistoryModel(errorText = e.toString())
+                _history.value = HistoryModel(errorText = e.message ?: e.toString())
             }
         }
         Log.d(TAG, "reloadHistory post")
@@ -282,7 +282,7 @@ class ServerViewModel(
                 _conf.value = ConfModel(isAuthed = true, conf = bleServerConn.getConf())
             } catch (e: Exception) {
                 Log.d(TAG, e.toString())
-                _conf.value = ConfModel(isAuthed = true, errorText = e.toString())
+                _conf.value = ConfModel(isAuthed = true, errorText = e.message ?: e.toString())
             }
         }
         Log.d(TAG, "reloadConf post")
@@ -305,7 +305,7 @@ class ServerViewModel(
             } catch (e: Exception) {
                 Log.d(TAG, e.toString())
                 // TODO: reloadConf?
-                _conf.value = model.copy(errorText = e.toString())
+                _conf.value = model.copy(errorText = e.message ?: e.toString())
             }
         }
         Log.d(TAG, "setConf post")
@@ -324,7 +324,7 @@ class ServerViewModel(
                 _time.value = TimeModel(time = bleServerConn.getTime())
             } catch (e: Exception) {
                 Log.d(TAG, e.toString())
-                _time.value = TimeModel(errorText = e.toString())
+                _time.value = TimeModel(errorText = e.message ?: e.toString())
             }
         }
         Log.d(TAG, "reloadTime post")
@@ -350,7 +350,7 @@ class ServerViewModel(
                 }
             } catch (e: Exception) {
                 Log.d(TAG, e.toString())
-                _time.value = model.copy(errorText = e.toString())
+                _time.value = model.copy(errorText = e.message ?: e.toString())
             }
         }
         Log.d(TAG, "syncTime post")
