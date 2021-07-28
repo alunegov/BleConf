@@ -132,21 +132,3 @@ inline fun <reified VM: ViewModel> NavBackStackEntry.parentViewModel(
 
     return viewModel(viewModelStoreOwner = parentBackStackEntry, factory = factory)
 }
-
-fun serversListViewModelFactory(bleConn: BleConn): ViewModelProvider.Factory {
-    return object : ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            return ServersListViewModel(bleConn) as T
-        }
-    }
-}
-
-fun serverViewModelFactory(bleConn: BleConn, address: String): ViewModelProvider.Factory {
-    return object : ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            return ServerViewModel(bleConn, address) as T
-        }
-    }
-}

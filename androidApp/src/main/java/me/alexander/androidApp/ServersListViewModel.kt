@@ -2,6 +2,7 @@ package me.alexander.androidApp
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -56,5 +57,14 @@ class ServersListViewModel(
         Log.d(TAG, "stopScan")
         bleConn.stopScan()
         Log.d(TAG, "stopScan post")
+    }
+}
+
+fun serversListViewModelFactory(bleConn: BleConn): ViewModelProvider.Factory {
+    return object : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            return ServersListViewModel(bleConn) as T
+        }
     }
 }

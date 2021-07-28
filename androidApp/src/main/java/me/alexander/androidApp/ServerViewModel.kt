@@ -2,6 +2,7 @@ package me.alexander.androidApp
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
@@ -354,5 +355,14 @@ class ServerViewModel(
             }
         }
         Log.d(TAG, "syncTime post")
+    }
+}
+
+fun serverViewModelFactory(bleConn: BleConn, address: String): ViewModelProvider.Factory {
+    return object : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            return ServerViewModel(bleConn, address) as T
+        }
     }
 }
