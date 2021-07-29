@@ -11,7 +11,7 @@ version = "0.3"
 dependencies {
     implementation("androidx.appcompat:appcompat:1.3.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
-    implementation("androidx.compose.ui:ui:1.0.0-rc02")
+    implementation("androidx.compose.ui:ui:1.0.0")
     // Tooling support (Previews, etc.)
     implementation("androidx.compose.ui:ui-tooling-preview:${libs.versions.compose.get()}")
     debugImplementation("androidx.compose.ui:ui-tooling:${libs.versions.compose.get()}")
@@ -23,7 +23,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-core:${libs.versions.compose.get()}")
     implementation("androidx.compose.material:material-icons-extended:${libs.versions.compose.get()}")
     // Integration with activities
-    implementation("androidx.activity:activity-compose:1.3.0-rc02")
+    implementation("androidx.activity:activity-compose:1.3.0")
     // Integration with ViewModels
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07")
     // Integration with observables

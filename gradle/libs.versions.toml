@@ -1,5 +1,5 @@
 [versions]
-compose = "1.0.0-rc02"
+compose = "1.0.0"
 kable = "0.7.1"
 
 [libraries]
