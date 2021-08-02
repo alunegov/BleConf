@@ -4,10 +4,9 @@ pluginManagement {
         gradlePluginPortal()
         mavenCentral()
     }
-    
 }
 
-rootProject.name = "untitled"
+rootProject.name = "BleConf"
 
 include(":androidApp")
 

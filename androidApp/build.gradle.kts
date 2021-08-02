@@ -5,11 +5,10 @@ plugins {
     kotlin("android")
 }
 
-group = "me.alexander"
-version = "0.3"
-
 dependencies {
+    //implementation 'androidx.core:core-ktx:1.3.2'
     implementation("androidx.appcompat:appcompat:1.3.1")
+    implementation("com.google.android.material:material:1.4.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
     implementation("androidx.compose.ui:ui:1.0.0")
     // Tooling support (Previews, etc.)
@@ -35,13 +34,9 @@ dependencies {
     implementation("com.google.accompanist:accompanist-permissions:${libs.versions.accompanist.get()}")
     // Bcrypt
     implementation("at.favre.lib:bcrypt:0.9.0")
-    //implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0-native-mt!!")
-    //implementation(libs.mvikotlin.core)
-    //implementation(libs.mvikotlin.main)
-    //implementation(libs.decompose.core)
-    //implementation(libs.decompose.compose.jetpack)
     implementation(libs.kable.core)
-    implementation(platform("com.google.firebase:firebase-bom:28.0.0"))
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:28.3.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-crashlytics-ktx")
 
@@ -53,22 +48,26 @@ dependencies {
 android {
     compileSdk = 30
     defaultConfig {
-        applicationId = "me.alexander.androidApp"
+        applicationId = "com.github.alunegov.bleconf.android"
         minSdk = 24
         targetSdk = 30
-        versionCode = 3
-        versionName = "0.3"
+        versionCode = 4
+        versionName = "0.4"
+
+        //testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary = true
+        }
     }
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
+            //proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
     buildFeatures {
-        // Enables Jetpack Compose for this module
         compose = true
     }
-    // Set both the Java and Kotlin compilers to target Java 8.
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8

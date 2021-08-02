@@ -6,7 +6,7 @@
 
     <!-- The background color, preferably the same as your normal theme. -->
     <item>
-        <color android:color="@color/colorPrimary"/>
+        <color android:color="@color/purple_500"/>
     </item>
 
     <!-- Your product logo - launcher icon for now. -->

@@ -19,7 +19,7 @@
 - [x] l10n
 - [x] описание или имя датчика через ble-дескриптор
 - [ ] включение BT-адаптера
-- [ ] переименование проекта (com.github.alunegov.bleconf?)
+- [x] переименование проекта (com.github.alunegov.bleconf)
 
 ## features
 
