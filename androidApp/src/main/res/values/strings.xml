@@ -8,7 +8,6 @@
     <string name="no_sensors">No sensors</string>
     <string name="sensor_coeff">Coeff.: %s</string>
     <string name="sensors_enability">Active sensors:</string>
-    <string name="sensors_enabilty_changes">Active sensors changes:</string>
     <string name="no_events">No events</string>
     <string name="system_time">System time</string>
     <string name="system_conf">Сonf</string>

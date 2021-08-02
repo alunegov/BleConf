@@ -141,8 +141,6 @@ fun ServerHistoryScreen(
                                     }
                                 }
                             }
-
-                            // TODO: Text(stringResource(R.string.sensors_enabilty_changes))
                         }
                     }
                 }

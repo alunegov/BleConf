@@ -8,7 +8,6 @@
     <string name="no_sensors">Датчики отсутствуют</string>
     <string name="sensor_coeff">Коэфф.: %s</string>
     <string name="sensors_enability">Активные датчики:</string>
-    <string name="sensors_enabilty_changes">Изменение активных датчиков:</string>
     <string name="no_events">События отсутствуют</string>
     <string name="system_time">Системное время</string>
     <string name="system_conf">Настройки</string>

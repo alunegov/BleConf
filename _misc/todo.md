@@ -18,9 +18,13 @@
 - [x] отдельный текст для пустых списков
 - [x] l10n
 - [x] описание или имя датчика через ble-дескриптор
-- [ ] core.splashscreen (API level 31)
 - [ ] включение BT-адаптера
 - [ ] переименование проекта (com.github.alunegov.bleconf?)
+
+## features
+
+- [ ] core.splashscreen (когда перейдём на API level 31)
+- [ ] использовать JSON для передачи истории (см. BleServerConnImpl::decodeHistory)
 
 ## ext
 

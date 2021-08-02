@@ -179,7 +179,6 @@ class BleServerConnImpl(
      */
     private fun decodeHistory(historyEncRaw: ByteArray): List<HistoryEvent> {
         val asStr = historyEncRaw.decodeToString()
-        // TODO: use json deserialization?
         val events = mutableListOf<HistoryEvent>()
         val eventsAsStr = asStr.split(';')
         for (eventAsStr in eventsAsStr) {
