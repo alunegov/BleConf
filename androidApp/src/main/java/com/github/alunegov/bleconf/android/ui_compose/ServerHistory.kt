@@ -24,6 +24,8 @@ import com.github.alunegov.bleconf.android.R
 import com.github.alunegov.bleconf.android.ServerScreen
 import com.github.alunegov.bleconf.android.ServerViewModel
 import com.github.alunegov.bleconf.android.domain.HistoryEvent
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.util.*
 
 //private const val TAG = "ServerHistory"
@@ -52,6 +54,7 @@ fun ServerHistory(
     ServerHistoryScreen(
         serverName = viewModel.serverName,
         model = state.value,
+        onHistoryRefresh = { viewModel.reloadHistory() },
         onBackClicked = { navController.popBackStack() },
         currentRoute = getCurrentRoute(navController),
         onRouteClicked = createNavigateToRouteClicked(navController),
@@ -71,6 +74,7 @@ fun ServerHistory(
 fun ServerHistoryScreen(
     serverName: String,
     model: HistoryModel,
+    onHistoryRefresh: () -> Unit = {},
     onBackClicked: () -> Unit,
     currentRoute: String?,
     onRouteClicked: (String) -> Unit,
@@ -82,13 +86,17 @@ fun ServerHistoryScreen(
             Error(model.errorText)
         }
 
-        if (model.loading) {
-            EmptyPlaceHolder(stringResource(R.string.loading))
-        } else {
-            if (model.events.isNotEmpty()) {
-                LazyColumn(
-                    modifier = Modifier.weight(1.0f),
-                ) {
+        val swipeRefreshState = rememberSwipeRefreshState(model.loading)
+
+        SwipeRefresh(
+            state = swipeRefreshState,
+            onRefresh = onHistoryRefresh,
+            modifier = Modifier.weight(1.0f),
+        ) {
+            LazyColumn(
+                //modifier = Modifier.weight(1.0f),
+            ) {
+                if (model.events.isNotEmpty()) {
                     items(model.events) { event ->
                         Column(
                             modifier = Modifier
@@ -143,9 +151,11 @@ fun ServerHistoryScreen(
                             }
                         }
                     }
+                } else {
+                    item {
+                        EmptyPlaceHolder(stringResource(R.string.no_events))
+                    }
                 }
-            } else {
-                EmptyPlaceHolder(stringResource(R.string.no_events))
             }
         }
 

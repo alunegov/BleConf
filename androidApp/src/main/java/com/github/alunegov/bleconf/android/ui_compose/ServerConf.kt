@@ -23,6 +23,8 @@ import androidx.navigation.NavController
 import com.github.alunegov.bleconf.android.*
 import com.github.alunegov.bleconf.android.R
 import com.github.alunegov.bleconf.android.domain.Conf
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.util.*
 
 private const val TAG = "ServerConf"
@@ -57,6 +59,7 @@ fun ServerConfEntry(
         confModel = confState.value,
         timeModel = timeState.value,
         onAuthClicked = { viewModel.authConf(it) },
+        onConfRefresh = { viewModel.reloadConf(); viewModel.reloadTime() },
         onSetConfClicked = { viewModel.setConf(it) },
         onBackClicked = { navController.popBackStack() },
         currentRoute = getCurrentRoute(navController),
@@ -82,6 +85,7 @@ fun ServerConfEntryScreen(
     confModel: ConfModel,
     timeModel: TimeModel,
     onAuthClicked: (String) -> Unit,
+    onConfRefresh: () -> Unit = {},
     onSetConfClicked: (Conf) -> Unit,
     onBackClicked: () -> Unit,
     currentRoute: String?,
@@ -100,7 +104,7 @@ fun ServerConfEntryScreen(
                 .fillMaxWidth(),
         ) {
             if (confModel.isAuthed) {
-                ServerConfEdit(confModel, timeModel, onSetConfClicked)
+                ServerConfEdit(confModel, timeModel, onConfRefresh, onSetConfClicked)
             } else {
                 ServerConfAuth(onAuthClicked)
             }
@@ -165,6 +169,7 @@ fun ServerConfEntryScreenPreview_NotAuthed() {
 fun ServerConfEdit(
     confModel: ConfModel,
     timeModel: TimeModel,
+    onConfRefresh: () -> Unit,
     onSetConfClicked: (Conf) -> Unit,
 ) {
     //val conf = remember(confModel.conf) { mutableStateOf(confModel.conf.toValidatableConf()) }
@@ -177,88 +182,118 @@ fun ServerConfEdit(
     val adcImbaMinSwing = remember(confModel.conf.adcImbaMinSwing) { mutableStateOf(confModel.conf.adcImbaMinSwing.toString()) }
     val adcImbaThreshold = remember(confModel.conf.adcImbaThreshold) { mutableStateOf(confModel.conf.adcImbaThreshold.toString()) }
 
-    Column(
-        modifier = Modifier.verticalScroll(rememberScrollState()),
+    val swipeRefreshState = rememberSwipeRefreshState(confModel.loading or timeModel.loading)
+
+    SwipeRefresh(
+        state = swipeRefreshState,
+        onRefresh = onConfRefresh,
     ) {
-        Text(
-            text = stringResource(R.string.system_time),
-            modifier = Modifier.padding(8.dp),
-            style = MaterialTheme.typography.h5
-        )
+        Column(
+            modifier = Modifier.verticalScroll(rememberScrollState()),
+        ) {
+            Text(
+                text = stringResource(R.string.system_time),
+                modifier = Modifier.padding(8.dp),
+                style = MaterialTheme.typography.h5
+            )
 
-        Divider()
+            Divider()
 
-        Text(
-            text = Date(timeModel.time * 1000).toLocaleString(),
-            modifier = Modifier.padding(8.dp),
-        )
+            Text(
+                text = Date(timeModel.time * 1000).toLocaleString(),
+                modifier = Modifier.padding(8.dp),
+            )
 
-        Text(
-            text = stringResource(R.string.system_conf),
-            modifier = Modifier.padding(8.dp),
-            style = MaterialTheme.typography.h5
-        )
+            Text(
+                text = stringResource(R.string.system_conf),
+                modifier = Modifier.padding(8.dp),
+                style = MaterialTheme.typography.h5
+            )
 
-        Divider()
+            Divider()
 
-        listOf(
-            ConfItem(adcCoeff, stringResource(R.string.adc_coeff), stringResource(R.string.adc_coeff_helper)),
-            ConfItem(adcEmonNum, stringResource(R.string.adc_emon_num), stringResource(R.string.adc_emon_num_helper)),
-            ConfItem(adcAverNum, stringResource(R.string.adc_aver_num), stringResource(R.string.adc_aver_num_helper)),
-            ConfItem(adcImbaNum, stringResource(R.string.adc_imba_num), stringResource(R.string.adc_imba_num_helper)),
-            ConfItem(adcImbaMinCurrent, stringResource(R.string.adc_imba_min_current), stringResource(R.string.adc_imba_min_current_helper)),
-            ConfItem(adcImbaMinSwing, stringResource(R.string.adc_imba_min_swing), stringResource(R.string.adc_imba_min_swing_helper)),
-            ConfItem(adcImbaThreshold, stringResource(R.string.adc_imba_threshold), stringResource(R.string.adc_imba_threshold_helper)),
-            /*ConfItem(conf.value.adcCoeff, stringResource(R.string.adc_coeff), stringResource(R.string.adc_coeff_helper)),
+            listOf(
+                ConfItem(adcCoeff, stringResource(R.string.adc_coeff), stringResource(R.string.adc_coeff_helper)),
+                ConfItem(
+                    adcEmonNum,
+                    stringResource(R.string.adc_emon_num),
+                    stringResource(R.string.adc_emon_num_helper)
+                ),
+                ConfItem(
+                    adcAverNum,
+                    stringResource(R.string.adc_aver_num),
+                    stringResource(R.string.adc_aver_num_helper)
+                ),
+                ConfItem(
+                    adcImbaNum,
+                    stringResource(R.string.adc_imba_num),
+                    stringResource(R.string.adc_imba_num_helper)
+                ),
+                ConfItem(
+                    adcImbaMinCurrent,
+                    stringResource(R.string.adc_imba_min_current),
+                    stringResource(R.string.adc_imba_min_current_helper)
+                ),
+                ConfItem(
+                    adcImbaMinSwing,
+                    stringResource(R.string.adc_imba_min_swing),
+                    stringResource(R.string.adc_imba_min_swing_helper)
+                ),
+                ConfItem(
+                    adcImbaThreshold,
+                    stringResource(R.string.adc_imba_threshold),
+                    stringResource(R.string.adc_imba_threshold_helper)
+                ),
+                /*ConfItem(conf.value.adcCoeff, stringResource(R.string.adc_coeff), stringResource(R.string.adc_coeff_helper)),
             ConfItem(conf.value.adcEmonNum, stringResource(R.string.adc_emon_num), stringResource(R.string.adc_emon_num_helper)),
             ConfItem(conf.value.adcAverNum, stringResource(R.string.adc_aver_num), stringResource(R.string.adc_aver_num_helper)),
             ConfItem(conf.value.adcImbaNum, stringResource(R.string.adc_imba_num), stringResource(R.string.adc_imba_num_helper)),
             ConfItem(conf.value.adcImbaMinCurrent, stringResource(R.string.adc_imba_min_current), stringResource(R.string.adc_imba_min_current_helper)),
             ConfItem(conf.value.adcImbaMinSwing, stringResource(R.string.adc_imba_min_swing), stringResource(R.string.adc_imba_min_swing_helper)),
             ConfItem(conf.value.adcImbaThreshold, stringResource(R.string.adc_imba_threshold), stringResource(R.string.adc_imba_threshold_helper)),*/
-        ).forEach { confItem ->
-            val helperText: @Composable (() -> Unit)? =
-                if (confItem.helper.isNotEmpty()) {
-                    @Composable { Text(confItem.helper) }
-                }
-                else null
+            ).forEach { confItem ->
+                val helperText: @Composable (() -> Unit)? =
+                    if (confItem.helper.isNotEmpty()) {
+                        @Composable { Text(confItem.helper) }
+                    } else null
 
-            OutlinedTextFieldWithHelper(
-                value = confItem.item.value,
-                onValueChange = { confItem.item.value = it },
+                OutlinedTextFieldWithHelper(
+                    value = confItem.item.value,
+                    onValueChange = { confItem.item.value = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    label = { Text(confItem.label) },
+                    helper = helperText,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                )
+            }
+
+            Button(
+                onClick = {
+                    // TODO: pre validate Conf data
+                    try {
+                        Conf(
+                            adcCoeff.value.toFloat(),
+                            adcEmonNum.value.toInt(),
+                            adcAverNum.value.toInt(),
+                            adcImbaNum.value.toInt(),
+                            adcImbaMinCurrent.value.toFloat(),
+                            adcImbaMinSwing.value.toFloat(),
+                            adcImbaThreshold.value.toFloat(),
+                        ).also { onSetConfClicked(it) }
+                    } catch (e: Exception) {
+                        Log.d(TAG, e.toString())
+                    }
+                },
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .align(Alignment.CenterHorizontally)
+                    .widthIn(150.dp)
                     .padding(8.dp),
-                label = { Text(confItem.label) },
-                helper = helperText,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                singleLine = true,
-            )
-        }
-
-        Button(
-            onClick = {
-                // TODO: pre validate Conf data
-                try {
-                    Conf(
-                        adcCoeff.value.toFloat(),
-                        adcEmonNum.value.toInt(),
-                        adcAverNum.value.toInt(),
-                        adcImbaNum.value.toInt(),
-                        adcImbaMinCurrent.value.toFloat(),
-                        adcImbaMinSwing.value.toFloat(),
-                        adcImbaThreshold.value.toFloat(),
-                    ).also { onSetConfClicked(it) }
-                } catch (e: Exception) {
-                    Log.d(TAG, e.toString())
-                }
-            },
-            modifier = Modifier
-                .align(Alignment.End)
-                .widthIn(150.dp)
-                .padding(8.dp),
-        ) {
-            Text(stringResource(R.string.apply_conf))
+            ) {
+                Text(stringResource(R.string.apply_conf))
+            }
         }
     }
 }
@@ -328,7 +363,7 @@ fun ServerConfAuth(
         Button(
             onClick = { onAuthClicked(pwd) },
             modifier = Modifier
-                .align(Alignment.End)
+                .align(Alignment.CenterHorizontally)
                 .widthIn(150.dp)
                 .padding(8.dp),
         ) {

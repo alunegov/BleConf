@@ -3,6 +3,8 @@ package com.github.alunegov.bleconf.android.ui_compose
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
@@ -21,6 +23,8 @@ import com.github.alunegov.bleconf.android.ServerScreen
 import com.github.alunegov.bleconf.android.ServerViewModel
 import com.github.alunegov.bleconf.android.TimeModel
 import com.github.alunegov.bleconf.android.domain.Sensor
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.text.NumberFormat
 
 //private const val TAG = "SensorsList"
@@ -54,6 +58,7 @@ fun SensorsList(
         serverName = viewModel.serverName,
         sensorsModel = sensorsState.value,
         timeModel = timeState.value,
+        onSensorsRefresh= { viewModel.reloadSensors() },
         onSensorChecked = { sensorId, checked -> viewModel.setEnabled(sensorId, checked) },
         onBackClicked = { navController.popBackStack() },
         currentRoute = getCurrentRoute(navController),
@@ -67,6 +72,7 @@ fun SensorsList(
  * @param serverName Имя сервера.
  * @param sensorsModel Модель списка датчиков.
  * @param timeModel Модель системного времени сервера.
+ * @param onSensorsRefresh
  * @param onSensorChecked Обработчик включения/выключения датчика.
  * @param onBackClicked Обработчик навигации назад.
  * @param currentRoute Текущий роут.
@@ -77,6 +83,7 @@ fun SensorsListScreen(
     serverName: String,
     sensorsModel: SensorsModel,
     timeModel: TimeModel,
+    onSensorsRefresh: () -> Unit = {},
     onSensorChecked: (String, Boolean) -> Unit,
     onBackClicked: () -> Unit,
     currentRoute: String?,
@@ -89,9 +96,13 @@ fun SensorsListScreen(
             Error(sensorsModel.errorText, timeModel.errorText)
         }
 
-        if (sensorsModel.loading) {
-            EmptyPlaceHolder(stringResource(R.string.loading))
-        } else {
+        val swipeRefreshState = rememberSwipeRefreshState(sensorsModel.loading or timeModel.loading)
+
+        SwipeRefresh(
+            state = swipeRefreshState,
+            onRefresh = onSensorsRefresh,
+            //modifier = Modifier.weight(1.0f),
+        ) {
             if (sensorsModel.sensors.isNotEmpty()) {
                 LazyColumn(
                     modifier = Modifier.weight(1.0f),
@@ -106,6 +117,7 @@ fun SensorsListScreen(
                             Switch(
                                 checked = sensor.enabled,
                                 onCheckedChange = { checked -> onSensorChecked(sensor.id, checked) },
+                                enabled = !swipeRefreshState.isRefreshing,
                             )
 
                             Spacer(Modifier.size(16.dp))
@@ -130,7 +142,10 @@ fun SensorsListScreen(
                                                 0 -> stringResource(R.string.sensor_state_bad)
                                                 1 -> stringResource(R.string.sensor_state_good)
                                                 2 -> stringResource(R.string.sensor_state_unknown)
-                                                else -> stringResource(R.string.sensor_state_unsopported, sensor.state)
+                                                else -> stringResource(
+                                                    R.string.sensor_state_unsopported,
+                                                    sensor.state
+                                                )
                                             },
                                             style = MaterialTheme.typography.body1,
                                         )
@@ -150,8 +165,22 @@ fun SensorsListScreen(
                     }
                 }
             } else {
-                EmptyPlaceHolder(stringResource(R.string.no_sensors))
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1.0f),
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    item {EmptyPlaceHolder(stringResource(R.string.no_sensors)) }
+                }
             }
+        }
+
+        LazyColumn(
+            modifier = Modifier
+                .weight(1.0f),
+            verticalArrangement = Arrangement.Center,
+        ) {
+            item {EmptyPlaceHolder(stringResource(R.string.no_sensors)) }
         }
 
         ServerBottomBar(currentRoute, onRouteClicked)

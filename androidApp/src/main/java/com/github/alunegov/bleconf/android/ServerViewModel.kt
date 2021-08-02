@@ -152,9 +152,9 @@ class ServerViewModel(
         Log.d(TAG, "reloadSensors")
         _bleScope.launch {
             val model = _sensors.value
-            if (model.sensors.isEmpty()) {
+            //if (model.sensors.isEmpty()) {
                 _sensors.value = model.copy(loading = true)
-            }
+            //}
 
             try {
                 //_sensors.value = SensorsModel(loading = true)

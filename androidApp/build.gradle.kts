@@ -32,6 +32,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.4.0-alpha04")
     // Accompanist
     implementation("com.google.accompanist:accompanist-permissions:${libs.versions.accompanist.get()}")
+    implementation("com.google.accompanist:accompanist-swiperefresh:${libs.versions.accompanist.get()}")
     // Bcrypt
     implementation("at.favre.lib:bcrypt:0.9.0")
     implementation(libs.kable.core)
