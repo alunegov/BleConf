@@ -33,6 +33,8 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.4.0-alpha04")
     // Accompanist
     implementation("com.google.accompanist:accompanist-permissions:${libs.versions.accompanist.get()}")
+    // Bcrypt
+    implementation("at.favre.lib:bcrypt:0.9.0")
     //implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0-native-mt!!")
     //implementation(libs.mvikotlin.core)
     //implementation(libs.mvikotlin.main)

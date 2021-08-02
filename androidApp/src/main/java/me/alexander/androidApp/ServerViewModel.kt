@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import at.favre.lib.crypto.bcrypt.BCrypt
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,9 +18,12 @@ import kotlin.math.abs
 private const val TAG = "ServerViewModel"
 
 /**
- * Пароль для просмотра/редактирования настроек сервера.
+ * Пароль для просмотра/редактирования настроек сервера, хэшированный с помощью bcrypt.
+ *
+ * Текущий пароль - 7777.
+ * Онлайн-генератор - https://bcrypt-generator.com/.
  */
-private const val CONF_PWD = "7777"
+private const val CONF_PWD_HASH = "\$2y\$12\$XT2u67B54nlKsow0QOtNsOVAHVJETV/k6GFp0weZ0/DElOqF9r5yS"
 
 /**
  * Модель данных для окна Датчики.
@@ -123,7 +127,7 @@ class ServerViewModel(
         }*/
     }
 
-    //@OptIn(DelicateCoroutinesApi::class)
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onCleared() {
         Log.d(TAG, "onCleared of $this")
         GlobalScope.launch(_bleDispatchers) {
@@ -261,8 +265,8 @@ class ServerViewModel(
      */
     fun authConf(pwd: String) {
         Log.d(TAG, "authConf")
-        // TODO: encrypt pwd
-        if (pwd == CONF_PWD) {
+        val res = BCrypt.verifyer().verify(pwd.toCharArray(), CONF_PWD_HASH)
+        if (res.verified) {
             _conf.value = ConfModel(isAuthed = true)
         } else {
             _conf.value = ConfModel(isAuthed = false, errorText = "Wrong password")  // TODO: l10n
