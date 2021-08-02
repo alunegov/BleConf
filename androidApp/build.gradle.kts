@@ -31,6 +31,8 @@ dependencies {
     //implementation("androidx.compose.runtime:runtime-rxjava2:${libs.versions.compose.get()}")
     // Integration with Navigation
     implementation("androidx.navigation:navigation-compose:2.4.0-alpha04")
+    // Accompanist
+    implementation("com.google.accompanist:accompanist-permissions:${libs.versions.accompanist.get()}")
     //implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0-native-mt!!")
     //implementation(libs.mvikotlin.core)
     //implementation(libs.mvikotlin.main)
@@ -71,6 +73,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
+        freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
     }
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.compose.get()

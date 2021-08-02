@@ -1,5 +1,6 @@
 [versions]
 compose = "1.0.0"
+accompanist = "0.15.0"
 kable = "0.7.1"
 
 [libraries]

@@ -25,23 +25,19 @@ import me.alexander.androidApp.domain.ServersModel
 /**
  * Окно Список серверов.
  *
- * @param isGranted Флаг: Разрешения для BT получены.
  * @param viewModel VM.
  * @param onServerClicked Обработчик события выбора сервера.
  */
 @Composable
 fun ServersList(
-    isGranted: State<Boolean>,
     viewModel: ServersListViewModel,
     onServerClicked: (String) -> Unit,
 ) {
     val state = viewModel.servers.collectAsState()
 
-    DisposableEffect(isGranted.value) {
+    DisposableEffect(true) {
         //Log.d(TAG, "ServersList DisposableEffect")
-        if (isGranted.value) {
-            viewModel.startScan()
-        }
+        viewModel.startScan()
         onDispose {
             //Log.d(TAG, "ServersList DisposableEffect onDispose")
             viewModel.stopScan()
