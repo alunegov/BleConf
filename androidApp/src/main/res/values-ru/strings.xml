@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">BleConf</string>
+    <string name="app_name">УБАЗ-ПШСН</string>
     <string name="no_servers">Сканирование…</string>
     <string name="unknown_server_name">Неизвестно</string>
     <string name="server_rssi">%d дБ</string>
@@ -29,8 +29,8 @@
     <string name="adc_imba_threshold">Пороговое значение небаланса</string>
     <string name="adc_imba_threshold_helper">Значение коэффициента больше этого значения - небаланс.</string>
     <string name="sensor_state">"Сост.: "</string>
-    <string name="sensor_state_bad">плохое</string>
-    <string name="sensor_state_good">хорошее</string>
+    <string name="sensor_state_bad">авария</string>
+    <string name="sensor_state_good">норма</string>
     <string name="sensor_state_unknown">неопред.</string>
     <string name="sensor_state_unsopported">неподдерж. (%d)</string>
     <string name="server_sensors">Датчики</string>
