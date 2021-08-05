@@ -36,4 +36,8 @@
     <string name="server_sensors">Датчики</string>
     <string name="server_history">История</string>
     <string name="server_conf">Настройки</string>
+    <string name="permission_rationale">Связь с устройством осуществляется по Bluetooth. Для корректной работы Bluetooth требуется разрешение Местоположение. Мы не собираем и не используем данные о вашем местоположении. Пожалуйста, разрешите приложению доступ к Местоположению. Также убедитесь, что включены Bluetooth и Локация.</string>
+    <string name="request_permission">Запросить разрешение</string>
+    <string name="permission_denied">Доступ к Местоположению запрещён. Пожалуйста, разрешите доступ на экране Настройки.</string>
+    <string name="open_settings">Открыть Настройки</string>
 </resources>
