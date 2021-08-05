@@ -291,7 +291,7 @@ fun ServerConfEdit(
                 },
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .widthIn(150.dp)
+                    .widthIn(250.dp)
                     .padding(8.dp),
             ) {
                 Text(stringResource(R.string.apply_conf))
@@ -366,7 +366,7 @@ fun ServerConfAuth(
             onClick = { onAuthClicked(pwd) },
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .widthIn(150.dp)
+                .widthIn(250.dp)
                 .padding(8.dp),
         ) {
             Text(stringResource(R.string.do_auth))
