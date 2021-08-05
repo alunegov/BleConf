@@ -102,7 +102,7 @@ class BleConnImpl(
         // TODO: check id presence
         val adv = _intServers[id]?.adv!!
         return BleServerConnImpl(
-            adv.name ?: "Noname",  // TODO: l10n
+            adv.name ?: "Noname",
             scope.peripheral(adv),
             logger,
         )

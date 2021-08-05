@@ -269,7 +269,7 @@ class ServerViewModel(
         if (res.verified) {
             _conf.value = ConfModel(isAuthed = true)
         } else {
-            _conf.value = ConfModel(isAuthed = false, errorText = "Wrong password")  // TODO: l10n
+            _conf.value = ConfModel(isAuthed = false, errorText = "Wrong password")
         }
     }
 

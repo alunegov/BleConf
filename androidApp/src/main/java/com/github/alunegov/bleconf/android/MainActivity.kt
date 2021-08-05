@@ -28,7 +28,7 @@ val gBleConn = BleConnImpl(logger = LoggerImpl)
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        // apply the actual theme (instead of SplashTheme)
+        // apply the actual theme (instead of Theme.BleConf.Splash)
         setTheme(R.style.Theme_BleConf_NoActionBar)
 
         super.onCreate(savedInstanceState)
@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
                             startActivity(
                                 Intent(
                                     Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                    Uri.fromParts("package", packageName, null)
+                                    Uri.fromParts("package", packageName, null),
                                 )
                             )
                         },

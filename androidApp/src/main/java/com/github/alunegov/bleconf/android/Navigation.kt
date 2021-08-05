@@ -22,7 +22,7 @@ sealed class RootScreen(val route: String) {
  *
  * @property route Имя роута.
  * @property captionResId Код ресурса с названием пути.
- * @property IconId Код иконки, см. [me.alexander.androidApp.ui_compose.ServerBottomBar].
+ * @property IconId Код иконки, см. [com.github.alunegov.bleconf.android.ui_compose.ServerBottomBar].
  */
 sealed class ServerScreen(val route: String, val captionResId: Int, val IconId: Int) {
     /**
