@@ -7,6 +7,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 /**
@@ -27,4 +28,10 @@ fun Error(vararg strs: String) {
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun ErrorPreview() {
+    Error("e1", "", "e3", "e4")
 }

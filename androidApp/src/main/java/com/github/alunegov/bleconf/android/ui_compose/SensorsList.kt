@@ -3,8 +3,6 @@ package com.github.alunegov.bleconf.android.ui_compose
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
@@ -188,6 +186,7 @@ fun SensorsListScreen(
 }
 
 @Preview
+@Preview(locale = "ru")
 @Composable
 fun SensorsListScreenPreview() {
     SensorsListScreen(
@@ -214,6 +213,7 @@ fun SensorsListScreenPreview() {
 }
 
 @Preview
+@Preview(locale = "ru")
 @Composable
 fun SensorsListScreenPreview_NoSensors() {
     SensorsListScreen(

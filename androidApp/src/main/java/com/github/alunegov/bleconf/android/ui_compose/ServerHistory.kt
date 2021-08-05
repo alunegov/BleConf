@@ -164,6 +164,7 @@ fun ServerHistoryScreen(
 }
 
 @Preview
+@Preview(locale = "ru")
 @Composable
 fun ServerHistoryScreenPreview() {
     ServerHistoryScreen(
@@ -182,6 +183,7 @@ fun ServerHistoryScreenPreview() {
 }
 
 @Preview
+@Preview(locale = "ru")
 @Composable
 fun ServerHistoryScreenPreview_NoEvents() {
     ServerHistoryScreen(

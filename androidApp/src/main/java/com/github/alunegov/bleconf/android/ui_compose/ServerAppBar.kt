@@ -7,6 +7,7 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 
 /**
  * Верхняя панель окон сервера с именем сервера и кнопкой Назад.
@@ -26,4 +27,10 @@ fun ServerAppBar(
             }
         },
     )
+}
+
+@Preview
+@Composable
+fun ServerAppBarPreview() {
+    ServerAppBar("title", {})
 }

@@ -9,7 +9,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -113,6 +112,7 @@ fun ServersListScreen(
 }
 
 @Preview
+@Preview(locale = "ru")
 @Composable
 fun ServersListScreenPreview() {
     ServersListScreen(
@@ -128,6 +128,7 @@ fun ServersListScreenPreview() {
 }
 
 @Preview
+@Preview(locale = "ru")
 @Composable
 fun ServersListScreenPreview_NoServers() {
     ServersListScreen(

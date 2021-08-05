@@ -114,6 +114,7 @@ fun ServerConfEntryScreen(
     }
 }
 
+@Preview
 @Preview(locale = "ru")
 @Composable
 fun ServerConfEntryScreenPreview_Authed() {
@@ -137,6 +138,7 @@ fun ServerConfEntryScreenPreview_Authed() {
 }
 
 @Preview
+@Preview(locale = "ru")
 @Composable
 fun ServerConfEntryScreenPreview_NotAuthed() {
     ServerConfEntryScreen(

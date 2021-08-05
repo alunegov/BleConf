@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.github.alunegov.bleconf.android.RootScreen
@@ -51,6 +52,13 @@ fun ServerBottomBar(
             )
         }
     }
+}
+
+@Preview
+@Preview(locale = "ru")
+@Composable
+fun ServerBottomBarPreview() {
+    ServerBottomBar(ServerScreen.Sensors.route, {})
 }
 
 @Composable
