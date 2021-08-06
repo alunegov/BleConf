@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import com.github.alunegov.bleconf.android.domain.Logger
 import com.github.alunegov.bleconf.android.domain.Server
 import com.github.alunegov.bleconf.android.domain.ServersModel
+import com.github.alunegov.bleconf.android.l10n.L10n
 
 private const val TAG = "BleConnImpl"
 
@@ -85,8 +86,6 @@ class BleConnImpl(
 
             logger?.d(TAG, "startScan launch post")
         }
-
-        logger?.d(TAG, "startScan post")
     }
 
     override fun stopScan() {
@@ -102,7 +101,7 @@ class BleConnImpl(
         // TODO: check id presence
         val adv = _intServers[id]?.adv!!
         return BleServerConnImpl(
-            adv.name ?: "Noname",
+            adv.name ?: L10n.tr("noname"),
             scope.peripheral(adv),
             logger,
         )

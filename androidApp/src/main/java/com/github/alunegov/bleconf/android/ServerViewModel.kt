@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import com.github.alunegov.bleconf.android.domain.Conf
 import com.github.alunegov.bleconf.android.domain.HistoryEvent
 import com.github.alunegov.bleconf.android.domain.Sensor
+import com.github.alunegov.bleconf.android.l10n.L10n
 import com.github.alunegov.bleconf.android.services.BleConn
 import kotlin.math.abs
 
@@ -269,7 +270,7 @@ class ServerViewModel(
         if (res.verified) {
             _conf.value = ConfModel(isAuthed = true)
         } else {
-            _conf.value = ConfModel(isAuthed = false, errorText = "Wrong password")
+            _conf.value = ConfModel(isAuthed = false, errorText = L10n.tr("wrong_pwd"))
         }
     }
 
