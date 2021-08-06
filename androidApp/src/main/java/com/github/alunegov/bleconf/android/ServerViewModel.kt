@@ -134,7 +134,6 @@ class ServerViewModel(
         GlobalScope.launch(_bleDispatchers) {
             bleServerConn.disconnect()
         }
-        Log.d(TAG, "onCleared post")
     }
 
     /**
@@ -188,9 +187,7 @@ class ServerViewModel(
                 }
                 Log.d(TAG, "coeffCollect launch post")
             }
-            Log.d(TAG, "coeffCollect post")
         }
-        Log.d(TAG, "reloadSensors post")
     }
 
     /**
@@ -232,7 +229,6 @@ class ServerViewModel(
                 _sensors.value = model.copy(errorText = e.message ?: e.toString())
             }
         }
-        Log.d(TAG, "toggleEnabled post")
     }
 
     /**
@@ -256,7 +252,6 @@ class ServerViewModel(
                 _history.value = HistoryModel(errorText = e.message ?: e.toString())
             }
         }
-        Log.d(TAG, "reloadHistory post")
     }
 
     /**
@@ -291,7 +286,6 @@ class ServerViewModel(
                 _conf.value = ConfModel(isAuthed = true, errorText = e.message ?: e.toString())
             }
         }
-        Log.d(TAG, "reloadConf post")
     }
 
     /**
@@ -314,7 +308,6 @@ class ServerViewModel(
                 _conf.value = model.copy(errorText = e.message ?: e.toString())
             }
         }
-        Log.d(TAG, "setConf post")
     }
 
     /**
@@ -333,7 +326,6 @@ class ServerViewModel(
                 _time.value = TimeModel(errorText = e.message ?: e.toString())
             }
         }
-        Log.d(TAG, "reloadTime post")
     }
 
     /**
@@ -359,7 +351,6 @@ class ServerViewModel(
                 _time.value = model.copy(errorText = e.message ?: e.toString())
             }
         }
-        Log.d(TAG, "syncTime post")
     }
 }
 
