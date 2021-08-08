@@ -33,6 +33,7 @@ dependencies {
     // Accompanist
     implementation("com.google.accompanist:accompanist-permissions:${libs.versions.accompanist.get()}")
     implementation("com.google.accompanist:accompanist-swiperefresh:${libs.versions.accompanist.get()}")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:${libs.versions.accompanist.get()}")
     // Bcrypt
     implementation("at.favre.lib:bcrypt:0.9.0")
     implementation(libs.kable.core)
