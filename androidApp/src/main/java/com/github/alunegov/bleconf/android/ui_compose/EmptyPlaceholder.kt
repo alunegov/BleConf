@@ -14,11 +14,10 @@ import androidx.compose.ui.unit.dp
  * Заглушка для пустых списков.
  */
 @Composable
-fun ColumnScope.EmptyPlaceHolder(text: String) {
+fun EmptyPlaceHolder(text: String) {
     Column(
         modifier = Modifier
-            .weight(1.0f)
-            .fillMaxWidth()
+            .fillMaxSize()
             .padding(8.dp),
         verticalArrangement = Arrangement.Center,
     ) {
@@ -34,7 +33,5 @@ fun ColumnScope.EmptyPlaceHolder(text: String) {
 @Preview
 @Composable
 fun EmptyPlaceHolderPreview() {
-    Column {
-        EmptyPlaceHolder("empty")
-    }
+    EmptyPlaceHolder("empty")
 }

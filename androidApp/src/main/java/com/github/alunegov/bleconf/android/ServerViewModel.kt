@@ -151,13 +151,8 @@ class ServerViewModel(
     fun reloadSensors() {
         Log.d(TAG, "reloadSensors")
         _bleScope.launch {
-            val model = _sensors.value
-            //if (model.sensors.isEmpty()) {
-                _sensors.value = model.copy(loading = true)
-            //}
-
             try {
-                //_sensors.value = SensorsModel(loading = true)
+                _sensors.value = _sensors.value.copy(loading = true)
 
                 ensureConnected()
                 _sensors.value = SensorsModel(sensors = bleServerConn.getSensors())
@@ -205,6 +200,7 @@ class ServerViewModel(
      */
     fun setEnabled(id: String, en: Boolean) {
         Log.d(TAG, "toggleEnabled for $id to $en")
+        assert(!_sensors.value.loading)
         _bleScope.launch {
             val model = _sensors.value
 
@@ -237,13 +233,8 @@ class ServerViewModel(
     fun reloadHistory() {
         Log.d(TAG, "reloadHistory")
         _bleScope.launch {
-            val model = _history.value
-            if (model.events.isEmpty()) {
-                _history.value = model.copy(loading = true)
-            }
-
             try {
-                //_history.value = HistoryModel(loading = true)
+                _history.value = _history.value.copy(loading = true)
 
                 ensureConnected()
                 _history.value = HistoryModel(events = bleServerConn.getHistory())
@@ -277,7 +268,7 @@ class ServerViewModel(
         assert(_conf.value.isAuthed)
         _bleScope.launch {
             try {
-                //_conf.value = ConfModel(isAuthed = true, loading = true)
+                _conf.value = _conf.value.copy(loading = true)
 
                 ensureConnected()
                 _conf.value = ConfModel(isAuthed = true, conf = bleServerConn.getConf())
@@ -294,6 +285,7 @@ class ServerViewModel(
     fun setConf(conf: Conf) {
         Log.d(TAG, "setConf")
         assert(_conf.value.isAuthed)
+        assert(!_conf.value.loading)
         _bleScope.launch {
             val model = _conf.value
 
@@ -317,7 +309,7 @@ class ServerViewModel(
         Log.d(TAG, "reloadTime")
         _bleScope.launch {
             try {
-                //_time.value = TimeModel(loading = true)
+                _time.value = _time.value.copy(loading = true)
 
                 ensureConnected()
                 _time.value = TimeModel(time = bleServerConn.getTime())
@@ -348,7 +340,7 @@ class ServerViewModel(
                 }
             } catch (e: Exception) {
                 Log.d(TAG, e.toString())
-                _time.value = model.copy(errorText = e.message ?: e.toString())
+                _time.value = model.copy(errorText = e.message ?: e.toString(), loading = false)
             }
         }
     }

@@ -25,6 +25,7 @@ import com.github.alunegov.bleconf.android.R
 import com.github.alunegov.bleconf.android.domain.Conf
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.launch
 import java.util.*
 
 private const val TAG = "ServerConf"
@@ -59,7 +60,10 @@ fun ServerConfEntry(
         confModel = confState.value,
         timeModel = timeState.value,
         onAuthClicked = { viewModel.authConf(it) },
-        onConfRefresh = { viewModel.reloadConf(); viewModel.reloadTime() },
+        onConfRefresh = {
+            viewModel.reloadConf()
+            viewModel.reloadTime()
+        },
         onSetConfClicked = { viewModel.setConf(it) },
         onBackClicked = { navController.popBackStack() },
         currentRoute = getCurrentRoute(navController),
@@ -74,6 +78,7 @@ fun ServerConfEntry(
  * @param confModel Модель настроек.
  * @param timeModel Модель системного времени сервера.
  * @param onAuthClicked Обработчик авторизации.
+ * @param onConfRefresh Обработчик обновления/загрузки настроек.
  * @param onSetConfClicked Обработчик задания настроек.
  * @param onBackClicked Обработчик навигации назад.
  * @param currentRoute Текущий роут.
@@ -91,17 +96,26 @@ fun ServerConfEntryScreen(
     currentRoute: String?,
     onRouteClicked: (String) -> Unit,
 ) {
-    Column {
-        ServerAppBar(serverName, onBackClicked)
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
 
-        if (confModel.errorText.isNotEmpty() || timeModel.errorText.isNotEmpty()) {
-            Error(confModel.errorText, timeModel.errorText)
+    Scaffold(
+        scaffoldState = scaffoldState,
+        topBar = { ServerAppBar(serverName, onBackClicked) },
+        bottomBar = { ServerBottomBar(currentRoute, onRouteClicked) },
+    ) { contentPadding ->
+        if (confModel.errorText.isNotEmpty() or timeModel.errorText.isNotEmpty()) {
+            scope.launch {
+                scaffoldState.snackbarHostState.showSnackbar(
+                    confModel.errorText + timeModel.errorText,
+                    //actionLabel = "Reload",
+                )
+                //onConfRefresh()
+            }
         }
 
         Column(
-            modifier = Modifier
-                .weight(1.0f)
-                .fillMaxWidth(),
+            modifier = Modifier.padding(bottom = contentPadding.calculateBottomPadding()),
         ) {
             if (confModel.isAuthed) {
                 ServerConfEdit(confModel, timeModel, onConfRefresh, onSetConfClicked)
@@ -109,8 +123,6 @@ fun ServerConfEntryScreen(
                 ServerConfAuth(onAuthClicked)
             }
         }
-
-        ServerBottomBar(currentRoute, onRouteClicked)
     }
 }
 
@@ -174,8 +186,6 @@ fun ServerConfEdit(
     onConfRefresh: () -> Unit,
     onSetConfClicked: (Conf) -> Unit,
 ) {
-    //val conf = remember(confModel.conf) { mutableStateOf(confModel.conf.toValidatableConf()) }
-
     val adcCoeff = remember(confModel.conf.adcCoeff) { mutableStateOf(confModel.conf.adcCoeff.toString()) }
     val adcEmonNum = remember(confModel.conf.adcEmonNum) { mutableStateOf(confModel.conf.adcEmonNum.toString()) }
     val adcAverNum = remember(confModel.conf.adcAverNum) { mutableStateOf(confModel.conf.adcAverNum.toString()) }
@@ -191,12 +201,14 @@ fun ServerConfEdit(
         onRefresh = onConfRefresh,
     ) {
         Column(
-            modifier = Modifier.verticalScroll(rememberScrollState()),
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
         ) {
             Text(
                 text = stringResource(R.string.system_time),
                 modifier = Modifier.padding(8.dp),
-                style = MaterialTheme.typography.h5
+                style = MaterialTheme.typography.h5,
             )
 
             Divider()
@@ -209,50 +221,19 @@ fun ServerConfEdit(
             Text(
                 text = stringResource(R.string.system_conf),
                 modifier = Modifier.padding(8.dp),
-                style = MaterialTheme.typography.h5
+                style = MaterialTheme.typography.h5,
             )
 
             Divider()
 
             listOf(
                 ConfItem(adcCoeff, stringResource(R.string.adc_coeff), stringResource(R.string.adc_coeff_helper)),
-                ConfItem(
-                    adcEmonNum,
-                    stringResource(R.string.adc_emon_num),
-                    stringResource(R.string.adc_emon_num_helper)
-                ),
-                ConfItem(
-                    adcAverNum,
-                    stringResource(R.string.adc_aver_num),
-                    stringResource(R.string.adc_aver_num_helper)
-                ),
-                ConfItem(
-                    adcImbaNum,
-                    stringResource(R.string.adc_imba_num),
-                    stringResource(R.string.adc_imba_num_helper)
-                ),
-                ConfItem(
-                    adcImbaMinCurrent,
-                    stringResource(R.string.adc_imba_min_current),
-                    stringResource(R.string.adc_imba_min_current_helper)
-                ),
-                ConfItem(
-                    adcImbaMinSwing,
-                    stringResource(R.string.adc_imba_min_swing),
-                    stringResource(R.string.adc_imba_min_swing_helper)
-                ),
-                ConfItem(
-                    adcImbaThreshold,
-                    stringResource(R.string.adc_imba_threshold),
-                    stringResource(R.string.adc_imba_threshold_helper)
-                ),
-                /*ConfItem(conf.value.adcCoeff, stringResource(R.string.adc_coeff), stringResource(R.string.adc_coeff_helper)),
-            ConfItem(conf.value.adcEmonNum, stringResource(R.string.adc_emon_num), stringResource(R.string.adc_emon_num_helper)),
-            ConfItem(conf.value.adcAverNum, stringResource(R.string.adc_aver_num), stringResource(R.string.adc_aver_num_helper)),
-            ConfItem(conf.value.adcImbaNum, stringResource(R.string.adc_imba_num), stringResource(R.string.adc_imba_num_helper)),
-            ConfItem(conf.value.adcImbaMinCurrent, stringResource(R.string.adc_imba_min_current), stringResource(R.string.adc_imba_min_current_helper)),
-            ConfItem(conf.value.adcImbaMinSwing, stringResource(R.string.adc_imba_min_swing), stringResource(R.string.adc_imba_min_swing_helper)),
-            ConfItem(conf.value.adcImbaThreshold, stringResource(R.string.adc_imba_threshold), stringResource(R.string.adc_imba_threshold_helper)),*/
+                ConfItem(adcEmonNum, stringResource(R.string.adc_emon_num), stringResource(R.string.adc_emon_num_helper)),
+                ConfItem(adcAverNum, stringResource(R.string.adc_aver_num), stringResource(R.string.adc_aver_num_helper)),
+                ConfItem(adcImbaNum, stringResource(R.string.adc_imba_num), stringResource(R.string.adc_imba_num_helper)),
+                ConfItem(adcImbaMinCurrent, stringResource(R.string.adc_imba_min_current), stringResource(R.string.adc_imba_min_current_helper)),
+                ConfItem(adcImbaMinSwing, stringResource(R.string.adc_imba_min_swing), stringResource(R.string.adc_imba_min_swing_helper)),
+                ConfItem(adcImbaThreshold, stringResource(R.string.adc_imba_threshold), stringResource(R.string.adc_imba_threshold_helper)),
             ).forEach { confItem ->
                 val helperText: @Composable (() -> Unit)? =
                     if (confItem.helper.isNotEmpty()) {
@@ -300,20 +281,6 @@ fun ServerConfEdit(
     }
 }
 
-/*data class ValidatableConf(
-    var adcCoeff: MutableState<String>,
-    var adcEmonNum: MutableState<String>,
-    var adcAverNum: MutableState<String>,
-    var adcImbaNum: MutableState<String>,
-    var adcImbaMinCurrent: MutableState<String>,
-    var adcImbaMinSwing: MutableState<String>,
-    var adcImbaThreshold: MutableState<String>,
-)
-
-fun Conf.toValidatableConf(): ValidatableConf {
-    return ValidatableConf()
-}*/
-
 data class ConfItem(
     val item: MutableState<String>,
     val label: String,
@@ -321,7 +288,7 @@ data class ConfItem(
 )
 
 /**
- * Авторизация
+ * Авторизация.
  *
  * @param onAuthClicked Обработчик авторизации.
  */

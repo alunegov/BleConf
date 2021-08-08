@@ -38,6 +38,9 @@ object BleConnStub : BleConn {
                     listOf(
                         Server("10:20:30:40:50:61", "Server 1", (-19..-10).random()),
                         Server("10:20:30:40:50:62", "Server 2", (-29..-20).random()),
+                        Server("10:20:30:40:50:63", "Server 3", (-39..-30).random()),
+                        Server("10:20:30:40:50:64", "Server 4", (-49..-40).random()),
+                        Server("10:20:30:40:50:65", "Server 5", (-59..-50).random()),
                     )
                 )
             }

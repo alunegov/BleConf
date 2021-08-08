@@ -3,14 +3,13 @@ package com.github.alunegov.bleconf.android.ui_compose
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Switch
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -23,6 +22,7 @@ import com.github.alunegov.bleconf.android.TimeModel
 import com.github.alunegov.bleconf.android.domain.Sensor
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.launch
 import java.text.NumberFormat
 
 //private const val TAG = "SensorsList"
@@ -56,7 +56,7 @@ fun SensorsList(
         serverName = viewModel.serverName,
         sensorsModel = sensorsState.value,
         timeModel = timeState.value,
-        onSensorsRefresh= { viewModel.reloadSensors() },
+        onSensorsRefresh = { viewModel.reloadSensors() },
         onSensorChecked = { sensorId, checked -> viewModel.setEnabled(sensorId, checked) },
         onBackClicked = { navController.popBackStack() },
         currentRoute = getCurrentRoute(navController),
@@ -70,7 +70,7 @@ fun SensorsList(
  * @param serverName Имя сервера.
  * @param sensorsModel Модель списка датчиков.
  * @param timeModel Модель системного времени сервера.
- * @param onSensorsRefresh
+ * @param onSensorsRefresh Обработчик обновления/загрузки списка датчиков.
  * @param onSensorChecked Обработчик включения/выключения датчика.
  * @param onBackClicked Обработчик навигации назад.
  * @param currentRoute Текущий роут.
@@ -87,101 +87,53 @@ fun SensorsListScreen(
     currentRoute: String?,
     onRouteClicked: (String) -> Unit,
 ) {
-    Column {
-        ServerAppBar(serverName, onBackClicked)
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
 
-        if (sensorsModel.errorText.isNotEmpty() || timeModel.errorText.isNotEmpty()) {
-            Error(sensorsModel.errorText, timeModel.errorText)
-        }
-
-        val swipeRefreshState = rememberSwipeRefreshState(sensorsModel.loading or timeModel.loading)
-
-        SwipeRefresh(
-            state = swipeRefreshState,
-            onRefresh = onSensorsRefresh,
-            //modifier = Modifier.weight(1.0f),
-        ) {
-            if (sensorsModel.sensors.isNotEmpty()) {
-                LazyColumn(
-                    modifier = Modifier.weight(1.0f),
-                ) {
-                    items(sensorsModel.sensors) { sensor ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Switch(
-                                checked = sensor.enabled,
-                                onCheckedChange = { checked -> onSensorChecked(sensor.id, checked) },
-                                enabled = !swipeRefreshState.isRefreshing,
-                            )
-
-                            Spacer(Modifier.size(16.dp))
-
-                            Column {
-                                Text(
-                                    text = sensor.name,
-                                    style = MaterialTheme.typography.h5,
-                                )
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Row(modifier = Modifier.weight(1.0f)) {
-                                        Text(
-                                            text = stringResource(R.string.sensor_state),
-                                            style = MaterialTheme.typography.body1,
-                                        )
-
-                                        Text(
-                                            text = when (sensor.state) {
-                                                0 -> stringResource(R.string.sensor_state_bad)
-                                                1 -> stringResource(R.string.sensor_state_good)
-                                                2 -> stringResource(R.string.sensor_state_unknown)
-                                                else -> stringResource(
-                                                    R.string.sensor_state_unsopported,
-                                                    sensor.state
-                                                )
-                                            },
-                                            style = MaterialTheme.typography.body1,
-                                        )
-                                    }
-
-                                    if (sensor.coeff != null) {
-                                        val formattedCoeff = NumberFormat.getInstance().format(sensor.coeff)
-                                        Text(
-                                            text = stringResource(R.string.sensor_coeff, formattedCoeff),
-                                            modifier = Modifier.weight(1.0f),
-                                            style = MaterialTheme.typography.body1,
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1.0f),
-                    verticalArrangement = Arrangement.Center,
-                ) {
-                    item {EmptyPlaceHolder(stringResource(R.string.no_sensors)) }
-                }
+    Scaffold(
+        scaffoldState = scaffoldState,
+        topBar = { ServerAppBar(serverName, onBackClicked) },
+        bottomBar = { ServerBottomBar(currentRoute, onRouteClicked) },
+    ) { contentPadding ->
+        if (sensorsModel.errorText.isNotEmpty() or timeModel.errorText.isNotEmpty()) {
+            scope.launch {
+                scaffoldState.snackbarHostState.showSnackbar(
+                    message = sensorsModel.errorText + timeModel.errorText,
+                    //actionLabel = "Reload",
+                )
+                //onSensorsRefresh()
             }
         }
 
-        LazyColumn(
-            modifier = Modifier
-                .weight(1.0f),
-            verticalArrangement = Arrangement.Center,
+        Column(
+            modifier = Modifier.padding(bottom = contentPadding.calculateBottomPadding()),
         ) {
-            item {EmptyPlaceHolder(stringResource(R.string.no_sensors)) }
-        }
+            val swipeRefreshState = rememberSwipeRefreshState(sensorsModel.loading or timeModel.loading)
 
-        ServerBottomBar(currentRoute, onRouteClicked)
+            SwipeRefresh(
+                state = swipeRefreshState,
+                onRefresh = onSensorsRefresh,
+            ) {
+                if (sensorsModel.sensors.isNotEmpty()) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        items(sensorsModel.sensors) {
+                            SensorItem(it, onSensorChecked, swipeRefreshState.isRefreshing)
+                        }
+                    }
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        EmptyPlaceHolder(stringResource(R.string.no_sensors))
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -228,4 +180,75 @@ fun SensorsListScreenPreview_NoSensors() {
         currentRoute = ServerScreen.Sensors.route,
         onRouteClicked = {},
     )
+}
+
+/**
+ * Датчик (элемент списка датчиков).
+ *
+ * @param sensor Датчик.
+ * @param onSensorChecked Обработчик включения/выключения датчика.
+ * @param isRefreshing Флаг: В процессе обновления списка датчиков.
+ */
+@Composable
+fun SensorItem(
+    sensor: Sensor,
+    onSensorChecked: (String, Boolean) -> Unit,
+    isRefreshing: Boolean,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Switch(
+            checked = sensor.enabled,
+            onCheckedChange = { checked -> onSensorChecked(sensor.id, checked) },
+            enabled = !isRefreshing,
+        )
+
+        Spacer(Modifier.size(16.dp))
+
+        Column {
+            Text(
+                text = sensor.name,
+                style = MaterialTheme.typography.h5,
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(modifier = Modifier.weight(1.0f)) {
+                    Text(
+                        text = stringResource(R.string.sensor_state),
+                        style = MaterialTheme.typography.body1,
+                    )
+
+                    Text(
+                        text = when (sensor.state) {
+                            0 -> stringResource(R.string.sensor_state_bad)
+                            1 -> stringResource(R.string.sensor_state_good)
+                            2 -> stringResource(R.string.sensor_state_unknown)
+                            else -> stringResource(R.string.sensor_state_unsopported, sensor.state)
+                        },
+                        color = when (sensor.state) {
+                            0 -> MaterialTheme.colors.error
+                            2 -> Color.Gray
+                            else -> Color.Companion.Unspecified
+                        },
+                        style = MaterialTheme.typography.body1,
+                    )
+                }
+
+                if (sensor.coeff != null) {
+                    val formattedCoeff = NumberFormat.getInstance().format(sensor.coeff)
+                    Text(
+                        text = stringResource(R.string.sensor_coeff, formattedCoeff),
+                        modifier = Modifier.weight(1.0f),
+                        style = MaterialTheme.typography.body1,
+                    )
+                }
+            }
+        }
+    }
 }

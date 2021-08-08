@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -73,26 +74,29 @@ fun RootWithLocationPermission(
 private fun PermissionRationale(
     onRequestPermission: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(
-            text = stringResource(R.string.permission_rationale),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.h5,
-        )
-
-        Spacer(Modifier.height(16.dp))
-
-        Button(
-            onClick = onRequestPermission,
-            modifier = Modifier.widthIn(250.dp),
+    // to force content color to be onSurface
+    Surface {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(stringResource(R.string.request_permission))
+            Text(
+                text = stringResource(R.string.permission_rationale),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.h5,
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            Button(
+                onClick = onRequestPermission,
+                modifier = Modifier.widthIn(250.dp),
+            ) {
+                Text(stringResource(R.string.request_permission))
+            }
         }
     }
 }
@@ -108,28 +112,31 @@ fun PermissionRationalePreview() {
 private fun PermissionDenied(
     navigateToSettingsScreen: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(
-            text = stringResource(R.string.permission_denied),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.h5,
-        )
-
-        Spacer(Modifier.height(16.dp))
-
-        Button(
-            onClick = navigateToSettingsScreen,
+    // to force content color to be onSurface
+    Surface {
+        Column(
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .widthIn(250.dp),
+                .fillMaxSize()
+                .padding(8.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(stringResource(R.string.open_settings))
+            Text(
+                text = stringResource(R.string.permission_denied),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.h5,
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            Button(
+                onClick = navigateToSettingsScreen,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .widthIn(250.dp),
+            ) {
+                Text(stringResource(R.string.open_settings))
+            }
         }
     }
 }

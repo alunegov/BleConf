@@ -4,13 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.SwitchDefaults
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,6 +24,7 @@ import com.github.alunegov.bleconf.android.ServerViewModel
 import com.github.alunegov.bleconf.android.domain.HistoryEvent
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.launch
 import java.util.*
 
 //private const val TAG = "ServerHistory"
@@ -66,6 +65,7 @@ fun ServerHistory(
  *
  * @param serverName Имя сервера.
  * @param model Модель истории.
+ * @param onHistoryRefresh Обработчик обновления/загрузки истории.
  * @param onBackClicked Обработчик навигации назад.
  * @param currentRoute Текущий роут.
  * @param onRouteClicked Обработчик навигации между окнами сервера.
@@ -79,87 +79,53 @@ fun ServerHistoryScreen(
     currentRoute: String?,
     onRouteClicked: (String) -> Unit,
 ) {
-    Column {
-        ServerAppBar(serverName, onBackClicked)
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
 
+    Scaffold(
+        scaffoldState = scaffoldState,
+        topBar = { ServerAppBar(serverName, onBackClicked) },
+        bottomBar = { ServerBottomBar(currentRoute, onRouteClicked) },
+    ) { contentPadding ->
         if (model.errorText.isNotEmpty()) {
-            Error(model.errorText)
+            scope.launch {
+                scaffoldState.snackbarHostState.showSnackbar(
+                    model.errorText,
+                    //actionLabel = "Reload",
+                )
+                //onHistoryRefresh()
+            }
         }
 
-        val swipeRefreshState = rememberSwipeRefreshState(model.loading)
-
-        SwipeRefresh(
-            state = swipeRefreshState,
-            onRefresh = onHistoryRefresh,
-            modifier = Modifier.weight(1.0f),
+        Column(
+            modifier = Modifier.padding(bottom = contentPadding.calculateBottomPadding()),
         ) {
-            LazyColumn(
-                //modifier = Modifier.weight(1.0f),
+            val swipeRefreshState = rememberSwipeRefreshState(model.loading)
+
+            SwipeRefresh(
+                state = swipeRefreshState,
+                onRefresh = onHistoryRefresh,
             ) {
                 if (model.events.isNotEmpty()) {
-                    items(model.events) { event ->
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp),
-                        ) {
-                            Text(
-                                text = Date(event.time * 1000).toLocaleString(),
-                                style = MaterialTheme.typography.h5,
-                            )
-
-                            Text(stringResource(R.string.sensors_enability))
-
-                            Spacer(Modifier.size(8.dp))
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
-                                val enabledColor = SwitchDefaults.colors().trackColor(
-                                    enabled = true,
-                                    checked = true
-                                ).value
-                                val disabledColor = SwitchDefaults.colors().trackColor(
-                                    enabled = true,
-                                    checked = false
-                                ).value
-
-                                for (i in 0..7) {
-                                    Spacer(Modifier.size(8.dp))
-
-                                    Column(
-                                        modifier = Modifier.weight(1.0f),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                    ) {
-                                        val en = (event.en and (1 shl i)) != 0
-
-                                        Box(
-                                            contentAlignment = Alignment.Center,
-                                            modifier = Modifier
-                                                .clip(CircleShape)
-                                                .background(if (en) enabledColor else disabledColor),
-                                        ) {
-                                            Text(
-                                                text = (i + 1).toString(),
-                                                modifier = Modifier.defaultMinSize(24.dp),
-                                                color = if (en) MaterialTheme.colors.onSecondary else MaterialTheme.colors.onSurface,
-                                                textAlign = TextAlign.Center,
-                                            )
-                                        }
-                                    }
-                                }
-                            }
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        items(model.events) {
+                            ServerHistoryItem(it)
                         }
                     }
                 } else {
-                    item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.Center,
+                    ) {
                         EmptyPlaceHolder(stringResource(R.string.no_events))
                     }
                 }
             }
         }
-
-        ServerBottomBar(currentRoute, onRouteClicked)
     }
 }
 
@@ -196,4 +162,65 @@ fun ServerHistoryScreenPreview_NoEvents() {
         currentRoute = ServerScreen.History.route,
         onRouteClicked = {},
     )
+}
+
+/**
+ * Событие истории (элемент списка событий - истории).
+ *
+ * @param event Событие истории.
+ */
+@Composable
+fun ServerHistoryItem(event: HistoryEvent) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+    ) {
+        Text(
+            text = Date(event.time * 1000).toLocaleString(),
+            style = MaterialTheme.typography.h5,
+        )
+
+        Text(stringResource(R.string.sensors_enability))
+
+        Spacer(Modifier.size(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            val enabledColor = SwitchDefaults.colors().trackColor(
+                enabled = true,
+                checked = true
+            ).value
+            val disabledColor = SwitchDefaults.colors().trackColor(
+                enabled = true,
+                checked = false
+            ).value
+
+            for (i in 0..7) {
+                Spacer(Modifier.size(8.dp))
+
+                Column(
+                    modifier = Modifier.weight(1.0f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    val en = (event.en and (1 shl i)) != 0
+
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .background(if (en) enabledColor else disabledColor),
+                    ) {
+                        Text(
+                            text = (i + 1).toString(),
+                            modifier = Modifier.defaultMinSize(24.dp),
+                            color = if (en) MaterialTheme.colors.onSecondary else MaterialTheme.colors.onSurface,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                }
+            }
+        }
+    }
 }

@@ -4,12 +4,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -18,6 +19,7 @@ import com.github.alunegov.bleconf.android.R
 import com.github.alunegov.bleconf.android.ServersListViewModel
 import com.github.alunegov.bleconf.android.domain.Server
 import com.github.alunegov.bleconf.android.domain.ServersModel
+import kotlinx.coroutines.launch
 
 //private const val TAG = "ServersList"
 
@@ -60,53 +62,46 @@ fun ServersListScreen(
     model: ServersModel,
     onServerClicked: (String) -> Unit,
 ) {
-    Column {
-        TopAppBar(
-            title = {
-                Text(stringResource(R.string.app_name))
-            },
-        )
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
 
+    Scaffold(
+        scaffoldState = scaffoldState,
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(stringResource(R.string.app_name))
+                },
+            )
+        },
+    ) { contentPadding ->
         if (model.errorText.isNotEmpty()) {
-            Error(model.errorText)
+            scope.launch {
+                scaffoldState.snackbarHostState.showSnackbar(model.errorText)
+            }
         }
 
-        if (model.servers.isNotEmpty()) {
-            LazyColumn(
-                modifier = Modifier.weight(1.0f),
-            ) {
-                items(model.servers) { server ->
-                    Column(
-                        modifier = Modifier
-                            .clickable { onServerClicked(server.address) }
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                    ) {
-                        Text(
-                            text = server.name ?: stringResource(R.string.unknown_server_name),
-                            style = MaterialTheme.typography.h5,
-                        )
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = server.address,
-                                modifier = Modifier.weight(1.0f),
-                                style = MaterialTheme.typography.body1,
-                            )
-
-                            Text(
-                                text = stringResource(R.string.server_rssi, server.rssi),
-                                modifier = Modifier.weight(1.0f),
-                                style = MaterialTheme.typography.body1,
-                            )
-                        }
+        Column(
+            modifier = Modifier.padding(bottom = contentPadding.calculateBottomPadding()),
+        ) {
+            if (model.servers.isNotEmpty()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    items(model.servers) {
+                        ServerItem(it, onServerClicked)
                     }
                 }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    EmptyPlaceHolder(stringResource(R.string.no_servers))
+                }
             }
-        } else {
-            EmptyPlaceHolder(stringResource(R.string.no_servers))
         }
     }
 }
@@ -138,4 +133,44 @@ fun ServersListScreenPreview_NoServers() {
         ),
         onServerClicked = {},
     )
+}
+
+/**
+ * Сервер (элемент списка серверов).
+ *
+ * @param server Сервер.
+ * @param onServerClicked Обработчик выбора сервера.
+ */
+@Composable
+fun ServerItem(
+    server: Server,
+    onServerClicked: (String) -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .clickable { onServerClicked(server.address) }
+            .fillMaxWidth()
+            .padding(8.dp),
+    ) {
+        Text(
+            text = server.name ?: stringResource(R.string.unknown_server_name),
+            style = MaterialTheme.typography.h5,
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(
+                text = server.address,
+                modifier = Modifier.weight(1.0f),
+                style = MaterialTheme.typography.body1,
+            )
+
+            Text(
+                text = stringResource(R.string.server_rssi, server.rssi),
+                modifier = Modifier.weight(1.0f),
+                style = MaterialTheme.typography.body1,
+            )
+        }
+    }
 }

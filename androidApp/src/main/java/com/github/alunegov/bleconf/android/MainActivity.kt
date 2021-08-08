@@ -7,7 +7,6 @@ import android.provider.Settings
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.runtime.SideEffect
 import com.github.alunegov.bleconf.android.services.BleConnImpl
 import com.github.alunegov.bleconf.android.services.BleConnStub
@@ -41,7 +40,6 @@ class MainActivity : AppCompatActivity() {
             BleConfTheme {
                 val systemUiController = rememberSystemUiController()
                 val useDarkIcons = MaterialTheme.colors.isLight
-
                 SideEffect {
                     systemUiController.setSystemBarsColor(
                         color = Color.Transparent,
@@ -49,20 +47,17 @@ class MainActivity : AppCompatActivity() {
                     )
                 }
 
-                // to force content color to be onSurface
-                Surface {
-                    RootWithLocationPermission(
-                        bleConn = gBleConn,
-                        navigateToSettingsScreen = {
-                            startActivity(
-                                Intent(
-                                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                    Uri.fromParts("package", packageName, null),
-                                )
+                RootWithLocationPermission(
+                    bleConn = gBleConn,
+                    navigateToSettingsScreen = {
+                        startActivity(
+                            Intent(
+                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.fromParts("package", packageName, null),
                             )
-                        },
-                    )
-                }
+                        )
+                    },
+                )
             }
         }
     }
