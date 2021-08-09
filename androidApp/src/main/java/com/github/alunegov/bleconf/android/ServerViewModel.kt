@@ -93,8 +93,8 @@ data class TimeModel(
  * @property address MAC-адрес сервера.
  */
 class ServerViewModel(
-    bleConn: BleConn,
-    address: String,
+    private val bleConn: BleConn,
+    private val address: String,
 ) : ViewModel() {
     private val _sensors = MutableStateFlow(SensorsModel(loading = true))
     val sensors = _sensors.asStateFlow()
@@ -258,6 +258,18 @@ class ServerViewModel(
         } else {
             _conf.value = ConfModel(isAuthed = false, errorText = L10n.tr("wrong_pwd"))
         }
+    }
+
+    /**
+     * Сброс ошибки авторизации.
+     *
+     * Сброс необходим, чтобы не показывать ошибку при повторном заходе в окно Настройки. Или чтобы показывать ошибку
+     * при повторном вводе ошибочного пароля.
+     */
+    fun resetAuthError() {
+        Log.d(TAG, "resetAuth")
+        assert(!_conf.value.isAuthed)
+        _conf.value = ConfModel(isAuthed = false)
     }
 
     /**

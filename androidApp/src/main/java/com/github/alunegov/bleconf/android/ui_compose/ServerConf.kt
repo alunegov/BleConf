@@ -16,7 +16,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalFocusManager
+//import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -58,6 +59,9 @@ fun ServerConfEntry(
         }
         onDispose {
             //Log.d(TAG, "ServerConf DisposableEffect onDispose")
+            if (!confState.value.isAuthed) {
+                viewModel.resetAuthError()
+            }
         }
     }
 
@@ -66,6 +70,7 @@ fun ServerConfEntry(
         confModel = confState.value,
         timeModel = timeState.value,
         onAuthClicked = { viewModel.authConf(it) },
+        onPwdChanged = { viewModel.resetAuthError() },
         onConfRefresh = {
             viewModel.reloadConf()
             viewModel.reloadTime()
@@ -84,6 +89,7 @@ fun ServerConfEntry(
  * @param confModel Модель настроек.
  * @param timeModel Модель системного времени сервера.
  * @param onAuthClicked Обработчик авторизации.
+ * @param onPwdChanged Обработчик изменения пароля.
  * @param onConfRefresh Обработчик обновления/загрузки настроек.
  * @param onSetConfClicked Обработчик задания настроек.
  * @param onBackClicked Обработчик навигации назад.
@@ -96,6 +102,7 @@ fun ServerConfEntryScreen(
     confModel: ConfModel,
     timeModel: TimeModel,
     onAuthClicked: (String) -> Unit,
+    onPwdChanged: () -> Unit = {},
     onConfRefresh: () -> Unit = {},
     onSetConfClicked: (Conf) -> Unit,
     onBackClicked: () -> Unit,
@@ -124,9 +131,22 @@ fun ServerConfEntryScreen(
             modifier = Modifier.padding(bottom = contentPadding.calculateBottomPadding()),
         ) {
             if (confModel.isAuthed) {
-                ServerConfEdit(confModel, timeModel, onConfRefresh, onSetConfClicked)
+                ServerConfEdit(
+                    confModel,
+                    timeModel,
+                    onConfRefresh,
+                    onSetConfClicked,
+                    onConfValidateError = {
+                        scope.launch {
+                            scaffoldState.snackbarHostState.showSnackbar(it)
+                        }
+                    },
+                )
             } else {
-                ServerConfAuth(onAuthClicked)
+                ServerConfAuth(
+                    onAuthClicked,
+                    onPwdChanged,
+                )
             }
         }
     }
@@ -183,7 +203,9 @@ fun ServerConfEntryScreenPreview_NotAuthed() {
  *
  * @param confModel Модель настроек.
  * @param timeModel Модель системного времени сервера.
+ * @param onConfRefresh Обработчик обновления/загрузки настроек.
  * @param onSetConfClicked Обработчик задания настроек.
+ * @param onConfValidateError Обработчик ошибки валидации значений.
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -192,6 +214,7 @@ fun ServerConfEdit(
     timeModel: TimeModel,
     onConfRefresh: () -> Unit,
     onSetConfClicked: (Conf) -> Unit,
+    onConfValidateError: (String) -> Unit,
 ) {
     val adcCoeff = remember(confModel.conf.adcCoeff) { mutableStateOf(confModel.conf.adcCoeff.toString()) }
     val adcEmonNum = remember(confModel.conf.adcEmonNum) { mutableStateOf(confModel.conf.adcEmonNum.toString()) }
@@ -212,8 +235,8 @@ fun ServerConfEdit(
         applyFocus,
     ) = remember { FocusRequester.createRefs() }
 
-    //val keyboardController = LocalSoftwareKeyboardController.current
-    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    //val focusManager = LocalFocusManager.current
 
     val swipeRefreshState = rememberSwipeRefreshState(confModel.loading or timeModel.loading)
 
@@ -319,8 +342,8 @@ fun ServerConfEdit(
                     keyboardActions = KeyboardActions(
                         onNext = {
                             if (confItem.nextFocusRequester == applyFocus) {
-                                //keyboardController?.hide()
-                                focusManager.clearFocus()
+                                keyboardController?.hide()
+                                //focusManager.clearFocus()
                             }
                             confItem.nextFocusRequester.requestFocus()
                         },
@@ -344,6 +367,7 @@ fun ServerConfEdit(
                         ).also { onSetConfClicked(it) }
                     } catch (e: Exception) {
                         Log.d(TAG, e.toString())
+                        onConfValidateError(e.message ?: e.toString())
                     }
                 },
                 modifier = Modifier
@@ -370,17 +394,19 @@ data class ConfItem(
  * Авторизация.
  *
  * @param onAuthClicked Обработчик авторизации.
+ * @param onPwdChanged Обработчик изменения пароля.
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ServerConfAuth(
     onAuthClicked: (String) -> Unit,
+    onPwdChanged: () -> Unit,
 ) {
     var pwd by remember { mutableStateOf("") }
     var pwdVisible by remember { mutableStateOf(false) }
 
-    //val keyboardController = LocalSoftwareKeyboardController.current
-    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    //val focusManager = LocalFocusManager.current
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -397,7 +423,10 @@ fun ServerConfAuth(
 
         OutlinedTextField(
             value = pwd,
-            onValueChange = { pwd = it },
+            onValueChange = {
+                pwd = it
+                onPwdChanged()
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
@@ -410,8 +439,8 @@ fun ServerConfAuth(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    //keyboardController?.hide()
-                    focusManager.clearFocus()
+                    keyboardController?.hide()
+                    //focusManager.clearFocus()
                     onAuthClicked(pwd)
                 },
             ),
@@ -419,7 +448,11 @@ fun ServerConfAuth(
         )
 
         Button(
-            onClick = { onAuthClicked(pwd) },
+            onClick = {
+                keyboardController?.hide()
+                //focusManager.clearFocus()
+                onAuthClicked(pwd)
+            },
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .widthIn(250.dp)
