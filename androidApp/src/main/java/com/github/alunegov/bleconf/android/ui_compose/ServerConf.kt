@@ -3,6 +3,7 @@ package com.github.alunegov.bleconf.android.ui_compose
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
@@ -11,8 +12,13 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -179,6 +185,7 @@ fun ServerConfEntryScreenPreview_NotAuthed() {
  * @param timeModel Модель системного времени сервера.
  * @param onSetConfClicked Обработчик задания настроек.
  */
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ServerConfEdit(
     confModel: ConfModel,
@@ -193,6 +200,20 @@ fun ServerConfEdit(
     val adcImbaMinCurrent = remember(confModel.conf.adcImbaMinCurrent) { mutableStateOf(confModel.conf.adcImbaMinCurrent.toString()) }
     val adcImbaMinSwing = remember(confModel.conf.adcImbaMinSwing) { mutableStateOf(confModel.conf.adcImbaMinSwing.toString()) }
     val adcImbaThreshold = remember(confModel.conf.adcImbaThreshold) { mutableStateOf(confModel.conf.adcImbaThreshold.toString()) }
+
+    val (
+        adcCoeffFocus,
+        adcEmonNumFocus,
+        adcAverNumFocus,
+        adcImbaNumFocus,
+        adcImbaMinCurrentFocus,
+        adcImbaMinSwingFocus,
+        adcImbaThresholdFocus,
+        applyFocus,
+    ) = remember { FocusRequester.createRefs() }
+
+    //val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
 
     val swipeRefreshState = rememberSwipeRefreshState(confModel.loading or timeModel.loading)
 
@@ -227,13 +248,55 @@ fun ServerConfEdit(
             Divider()
 
             listOf(
-                ConfItem(adcCoeff, stringResource(R.string.adc_coeff), stringResource(R.string.adc_coeff_helper)),
-                ConfItem(adcEmonNum, stringResource(R.string.adc_emon_num), stringResource(R.string.adc_emon_num_helper)),
-                ConfItem(adcAverNum, stringResource(R.string.adc_aver_num), stringResource(R.string.adc_aver_num_helper)),
-                ConfItem(adcImbaNum, stringResource(R.string.adc_imba_num), stringResource(R.string.adc_imba_num_helper)),
-                ConfItem(adcImbaMinCurrent, stringResource(R.string.adc_imba_min_current), stringResource(R.string.adc_imba_min_current_helper)),
-                ConfItem(adcImbaMinSwing, stringResource(R.string.adc_imba_min_swing), stringResource(R.string.adc_imba_min_swing_helper)),
-                ConfItem(adcImbaThreshold, stringResource(R.string.adc_imba_threshold), stringResource(R.string.adc_imba_threshold_helper)),
+                ConfItem(
+                    adcCoeff,
+                    stringResource(R.string.adc_coeff),
+                    stringResource(R.string.adc_coeff_helper),
+                    adcCoeffFocus,
+                    adcEmonNumFocus,
+                ),
+                ConfItem(
+                    adcEmonNum,
+                    stringResource(R.string.adc_emon_num),
+                    stringResource(R.string.adc_emon_num_helper),
+                    adcEmonNumFocus,
+                    adcAverNumFocus,
+                ),
+                ConfItem(
+                    adcAverNum,
+                    stringResource(R.string.adc_aver_num),
+                    stringResource(R.string.adc_aver_num_helper),
+                    adcAverNumFocus,
+                    adcImbaNumFocus,
+                ),
+                ConfItem(
+                    adcImbaNum,
+                    stringResource(R.string.adc_imba_num),
+                    stringResource(R.string.adc_imba_num_helper),
+                    adcImbaNumFocus,
+                    adcImbaMinCurrentFocus,
+                ),
+                ConfItem(
+                    adcImbaMinCurrent,
+                    stringResource(R.string.adc_imba_min_current),
+                    stringResource(R.string.adc_imba_min_current_helper),
+                    adcImbaMinCurrentFocus,
+                    adcImbaMinSwingFocus,
+                ),
+                ConfItem(
+                    adcImbaMinSwing,
+                    stringResource(R.string.adc_imba_min_swing),
+                    stringResource(R.string.adc_imba_min_swing_helper),
+                    adcImbaMinSwingFocus,
+                    adcImbaThresholdFocus
+                ),
+                ConfItem(
+                    adcImbaThreshold,
+                    stringResource(R.string.adc_imba_threshold),
+                    stringResource(R.string.adc_imba_threshold_helper),
+                    adcImbaThresholdFocus,
+                    applyFocus
+                ),
             ).forEach { confItem ->
                 val helperText: @Composable (() -> Unit)? =
                     if (confItem.helper.isNotEmpty()) {
@@ -245,10 +308,23 @@ fun ServerConfEdit(
                     onValueChange = { confItem.item.value = it },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp),
+                        .padding(8.dp)
+                        .focusRequester(confItem.focusRequester),
                     label = { Text(confItem.label) },
                     helper = helperText,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next,
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = {
+                            if (confItem.nextFocusRequester == applyFocus) {
+                                //keyboardController?.hide()
+                                focusManager.clearFocus()
+                            }
+                            confItem.nextFocusRequester.requestFocus()
+                        },
+                    ),
                     singleLine = true,
                 )
             }
@@ -273,7 +349,8 @@ fun ServerConfEdit(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .widthIn(250.dp)
-                    .padding(8.dp),
+                    .padding(8.dp)
+                    .focusRequester(applyFocus),
             ) {
                 Text(stringResource(R.string.apply_conf))
             }
@@ -285,6 +362,8 @@ data class ConfItem(
     val item: MutableState<String>,
     val label: String,
     val helper: String = "",
+    val focusRequester: FocusRequester,
+    val nextFocusRequester: FocusRequester,
 )
 
 /**
@@ -292,12 +371,16 @@ data class ConfItem(
  *
  * @param onAuthClicked Обработчик авторизации.
  */
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ServerConfAuth(
     onAuthClicked: (String) -> Unit,
 ) {
     var pwd by remember { mutableStateOf("") }
     var pwdVisible by remember { mutableStateOf(false) }
+
+    //val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -306,7 +389,6 @@ fun ServerConfAuth(
         Text(
             text = stringResource(R.string.authorization),
             modifier = Modifier
-                //.fillMaxWidth()
                 .padding(8.dp)
                 .align(Alignment.CenterHorizontally),
             textAlign = TextAlign.Center,
@@ -326,6 +408,13 @@ fun ServerConfAuth(
             },
             visualTransformation = if (pwdVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    //keyboardController?.hide()
+                    focusManager.clearFocus()
+                    onAuthClicked(pwd)
+                },
+            ),
             singleLine = true,
         )
 
