@@ -19,10 +19,6 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.BleConf.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="Theme.BleConf.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
     <!-- Splash screen that gets shown until the app finishes loading. -->
     <style name="Theme.BleConf.Splash" parent="Theme.BleConf">
         <item name="android:windowBackground">@drawable/splash_screen</item>

@@ -44,8 +44,8 @@ private val CoeffChr = characteristicOf(
  *
  * Коды ble-сервисов/характеристик/дескрипторов и форматы данных задаются в модуле BleConnImpl.cpp в проекте сервера.
  *
- * @param periph Реализация [Peripheral].
- * @param logger Реализация [Logger].
+ * @property periph Реализация [Peripheral].
+ * @property logger Реализация [Logger].
  */
 class BleServerConnImpl(
     override val serverName: String,

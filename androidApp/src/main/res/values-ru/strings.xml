@@ -4,7 +4,6 @@
     <string name="no_servers">Сканирование…</string>
     <string name="unknown_server_name">Неизвестно</string>
     <string name="server_rssi">%d дБ</string>
-    <string name="loading">Загрузка…</string>
     <string name="no_sensors">Датчики отсутствуют</string>
     <string name="sensor_coeff">Коэфф.: %s</string>
     <string name="sensors_enability">Активные датчики:</string>

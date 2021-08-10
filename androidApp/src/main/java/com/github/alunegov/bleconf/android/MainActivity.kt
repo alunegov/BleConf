@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.SideEffect
 import com.github.alunegov.bleconf.android.services.BleConnImpl
-import com.github.alunegov.bleconf.android.services.BleConnStub
+//import com.github.alunegov.bleconf.android.services.BleConnStub
 import com.github.alunegov.bleconf.android.ui_compose.RootWithLocationPermission
 import com.github.alunegov.bleconf.android.ui_compose.theme.BleConfTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController

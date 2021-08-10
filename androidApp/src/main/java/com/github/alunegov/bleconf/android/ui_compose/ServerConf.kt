@@ -389,7 +389,7 @@ fun ServerConfEdit(
 data class ConfItem(
     val item: MutableState<String>,
     val label: String,
-    val helper: String = "",
+    val helper: String,
     val focusRequester: FocusRequester,
     val nextFocusRequester: FocusRequester,
 )

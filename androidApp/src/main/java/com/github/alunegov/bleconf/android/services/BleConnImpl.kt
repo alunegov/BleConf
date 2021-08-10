@@ -36,7 +36,7 @@ private const val ServerTimeoutThreshold = 5000
  */
 class BleConnImpl(
     private val scanner: Scanner = Scanner(),
-    val logger: Logger? = null,
+    private val logger: Logger? = null,
 ) : BleConn {
     private val _intServers = hashMapOf<String, IntServer>()
 
@@ -110,8 +110,8 @@ class BleConnImpl(
     /**
      * Внутренне описание сервера.
      *
-     * @param adv "Реклама" сервера.
-     * @param time Время получения последней "рекламы".
+     * @property adv "Реклама" сервера.
+     * @property time Время получения последней "рекламы".
      */
     internal data class IntServer(
         val adv: Advertisement,
