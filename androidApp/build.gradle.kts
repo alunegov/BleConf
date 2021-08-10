@@ -1,7 +1,7 @@
 plugins {
     id("com.android.application")
-    id("com.google.gms.google-services")
-    id("com.google.firebase.crashlytics")
+    //id("com.google.gms.google-services")
+    //id("com.google.firebase.crashlytics")
     kotlin("android")
 }
 
@@ -35,9 +35,9 @@ dependencies {
     implementation("at.favre.lib:bcrypt:0.9.0")
     implementation(libs.kable.core)
     // Firebase
-    implementation(platform("com.google.firebase:firebase-bom:28.3.0"))
-    implementation("com.google.firebase:firebase-analytics-ktx")
-    implementation("com.google.firebase:firebase-crashlytics-ktx")
+    //implementation(platform("com.google.firebase:firebase-bom:28.3.0"))
+    //implementation("com.google.firebase:firebase-analytics-ktx")
+    //implementation("com.google.firebase:firebase-crashlytics-ktx")
 
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit"))
