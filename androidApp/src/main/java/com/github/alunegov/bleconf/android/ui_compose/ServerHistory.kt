@@ -24,7 +24,7 @@ import com.github.alunegov.bleconf.android.ServerViewModel
 import com.github.alunegov.bleconf.android.domain.HistoryEvent
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import kotlinx.coroutines.launch
+import java.text.DateFormat
 import java.util.*
 
 //private const val TAG = "ServerHistory"
@@ -177,8 +177,9 @@ fun ServerHistoryItem(event: HistoryEvent) {
             .fillMaxWidth()
             .padding(8.dp),
     ) {
+        val formattedTime = DateFormat.getDateTimeInstance().format(Date(event.time * 1000))
         Text(
-            text = Date(event.time * 1000).toLocaleString(),
+            text = formattedTime,
             style = MaterialTheme.typography.h5,
         )
 

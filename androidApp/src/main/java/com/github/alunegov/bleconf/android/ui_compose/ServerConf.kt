@@ -33,6 +33,7 @@ import com.github.alunegov.bleconf.android.domain.Conf
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.launch
+import java.text.DateFormat
 import java.util.*
 
 private const val TAG = "ServerConf"
@@ -261,8 +262,9 @@ fun ServerConfEdit(
 
             Divider()
 
+            val formattedTime = DateFormat.getDateTimeInstance().format(Date(timeModel.time * 1000))
             Text(
-                text = Date(timeModel.time * 1000).toLocaleString(),
+                text = formattedTime,
                 modifier = Modifier.padding(8.dp),
             )
 
