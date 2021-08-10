@@ -11,7 +11,7 @@
 - [подписывание release-сборки][12] (в корень нужно добавить файл keystore_release.properties, который содержит данные keystore)
 - используемый паттерн - MVI
 - интерфейс - [Jetpack Compose][3]
-- l10n - [стандартная Android][4] (ресурсные файлы strings.xml), [пример][7]
+- l10n - [стандартная Android][4] (ресурсные файлы strings.xml), [пример1][7] и [пример2][13]
 - заставка - [тема SplashTheme][5] на момент старта приложения
 - тема - стандартная [MaterialTheme][6] из Compose
 - аналитика сбоев - [Firebase Crashlytics][8] (в проект androidApp нужно добавить файл [google-services.json][9])
@@ -45,3 +45,4 @@
 [10]: https://github.com/JuulLabs/kable
 [11]: https://developer.android.com/jetpack/compose/navigation
 [12]: https://developer.android.com/studio/publish/app-signing#secure_key
+[13]: https://proandroiddev.com/the-ultimate-guide-to-android-app-internationalization-and-localization-89b6c33fe741
