@@ -80,23 +80,22 @@ fun ServerHistoryScreen(
     onRouteClicked: (String) -> Unit,
 ) {
     val scaffoldState = rememberScaffoldState()
-    val scope = rememberCoroutineScope()
+
+    if (model.errorText.isNotEmpty()) {
+        LaunchedEffect(scaffoldState.snackbarHostState) {
+            scaffoldState.snackbarHostState.showSnackbar(
+                model.errorText,
+                //actionLabel = "Reload",
+            )
+            //onHistoryRefresh()
+        }
+    }
 
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = { ServerAppBar(serverName, onBackClicked) },
         bottomBar = { ServerBottomBar(currentRoute, onRouteClicked) },
     ) { contentPadding ->
-        if (model.errorText.isNotEmpty()) {
-            scope.launch {
-                scaffoldState.snackbarHostState.showSnackbar(
-                    model.errorText,
-                    //actionLabel = "Reload",
-                )
-                //onHistoryRefresh()
-            }
-        }
-
         Column(
             modifier = Modifier.padding(bottom = contentPadding.calculateBottomPadding()),
         ) {

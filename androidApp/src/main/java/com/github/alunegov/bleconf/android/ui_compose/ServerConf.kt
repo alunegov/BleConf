@@ -112,21 +112,21 @@ fun ServerConfEntryScreen(
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
 
+    if (confModel.errorText.isNotEmpty() or timeModel.errorText.isNotEmpty()) {
+        LaunchedEffect(scaffoldState.snackbarHostState) {
+            scaffoldState.snackbarHostState.showSnackbar(
+                confModel.errorText + timeModel.errorText,
+                //actionLabel = "Reload",
+            )
+            //onConfRefresh()
+        }
+    }
+
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = { ServerAppBar(serverName, onBackClicked) },
         bottomBar = { ServerBottomBar(currentRoute, onRouteClicked) },
     ) { contentPadding ->
-        if (confModel.errorText.isNotEmpty() or timeModel.errorText.isNotEmpty()) {
-            scope.launch {
-                scaffoldState.snackbarHostState.showSnackbar(
-                    confModel.errorText + timeModel.errorText,
-                    //actionLabel = "Reload",
-                )
-                //onConfRefresh()
-            }
-        }
-
         Column(
             modifier = Modifier.padding(bottom = contentPadding.calculateBottomPadding()),
         ) {

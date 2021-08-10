@@ -22,7 +22,6 @@ import com.github.alunegov.bleconf.android.TimeModel
 import com.github.alunegov.bleconf.android.domain.Sensor
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import kotlinx.coroutines.launch
 import java.text.NumberFormat
 
 //private const val TAG = "SensorsList"
@@ -88,23 +87,22 @@ fun SensorsListScreen(
     onRouteClicked: (String) -> Unit,
 ) {
     val scaffoldState = rememberScaffoldState()
-    val scope = rememberCoroutineScope()
+
+    if (sensorsModel.errorText.isNotEmpty() or timeModel.errorText.isNotEmpty()) {
+        LaunchedEffect(scaffoldState.snackbarHostState) {
+            scaffoldState.snackbarHostState.showSnackbar(
+                message = sensorsModel.errorText + timeModel.errorText,
+                //actionLabel = "Reload",
+            )
+            //onSensorsRefresh()
+        }
+    }
 
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = { ServerAppBar(serverName, onBackClicked) },
         bottomBar = { ServerBottomBar(currentRoute, onRouteClicked) },
     ) { contentPadding ->
-        if (sensorsModel.errorText.isNotEmpty() or timeModel.errorText.isNotEmpty()) {
-            scope.launch {
-                scaffoldState.snackbarHostState.showSnackbar(
-                    message = sensorsModel.errorText + timeModel.errorText,
-                    //actionLabel = "Reload",
-                )
-                //onSensorsRefresh()
-            }
-        }
-
         Column(
             modifier = Modifier.padding(bottom = contentPadding.calculateBottomPadding()),
         ) {

@@ -7,10 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -19,7 +16,6 @@ import com.github.alunegov.bleconf.android.R
 import com.github.alunegov.bleconf.android.ServersListViewModel
 import com.github.alunegov.bleconf.android.domain.Server
 import com.github.alunegov.bleconf.android.domain.ServersModel
-import kotlinx.coroutines.launch
 
 //private const val TAG = "ServersList"
 
@@ -63,7 +59,12 @@ fun ServersListScreen(
     onServerClicked: (String) -> Unit,
 ) {
     val scaffoldState = rememberScaffoldState()
-    val scope = rememberCoroutineScope()
+
+    if (model.errorText.isNotEmpty()) {
+        LaunchedEffect(scaffoldState.snackbarHostState) {
+            scaffoldState.snackbarHostState.showSnackbar(model.errorText)
+        }
+    }
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -75,12 +76,6 @@ fun ServersListScreen(
             )
         },
     ) { contentPadding ->
-        if (model.errorText.isNotEmpty()) {
-            scope.launch {
-                scaffoldState.snackbarHostState.showSnackbar(model.errorText)
-            }
-        }
-
         Column(
             modifier = Modifier.padding(bottom = contentPadding.calculateBottomPadding()),
         ) {
