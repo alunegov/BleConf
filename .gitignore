@@ -1,5 +1,6 @@
 .gradle/
 .idea/
-google-services.json
-local.properties
 build*/
+google-services.json
+/local.properties
+/keystore_release.properties

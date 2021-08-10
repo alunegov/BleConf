@@ -8,6 +8,7 @@
 
 Структура проекта:
 - система сборки - стандартый gradle
+- [подписывание release-сборки][12] (в корень нужно добавить файл keystore_release.properties, который содержит данные keystore)
 - используемый паттерн - MVI
 - интерфейс - [Jetpack Compose][3]
 - l10n - [стандартная Android][4] (ресурсные файлы strings.xml), [пример][7]
@@ -43,3 +44,4 @@
 [9]: https://firebase.google.com/docs/android/setup#kotlin+ktx
 [10]: https://github.com/JuulLabs/kable
 [11]: https://developer.android.com/jetpack/compose/navigation
+[12]: https://developer.android.com/studio/publish/app-signing#secure_key
