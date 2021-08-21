@@ -1,7 +1,7 @@
 [versions]
 compose = "1.0.1"
-accompanist = "0.16.0"
-kable = "0.7.1"
+accompanist = "0.17.0"
+kable = "0.7.2"
 
 [libraries]
 kable-core = { module = "com.juul.kable:core", version.ref = "kable" }

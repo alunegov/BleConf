@@ -31,7 +31,7 @@ dependencies {
     // Integration with Navigation
     implementation("androidx.navigation:navigation-compose:2.4.0-alpha04")
     // Accompanist
-    implementation("com.google.accompanist:accompanist-permissions:0.16.0")
+    implementation("com.google.accompanist:accompanist-permissions:${libs.versions.accompanist.get()}")
     implementation("com.google.accompanist:accompanist-swiperefresh:${libs.versions.accompanist.get()}")
     implementation("com.google.accompanist:accompanist-systemuicontroller:${libs.versions.accompanist.get()}")
     // Bcrypt
@@ -48,7 +48,7 @@ dependencies {
 }
 
 android {
-    compileSdk = 30
+    compileSdk = 31
     defaultConfig {
         applicationId = "com.github.alunegov.bleconf.android"
         minSdk = 24
