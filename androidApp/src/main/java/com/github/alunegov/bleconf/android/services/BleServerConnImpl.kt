@@ -74,10 +74,10 @@ class BleServerConnImpl(
 
         val statesService = periph.services?.firstOrNull { it.serviceUuid == uuidFrom(STATES_SERVICE_UUID) } ?: return emptyList()
 
-        val sensors = mutableListOf<Sensor>()
-
         val enabledEncRaw = periph.read(characteristicOf(CONF_SERVICE_UUID, CONF_ENABLED_CH_UUID))
         logger?.d(TAG, "enabledEnc = " + enabledEncRaw[0].toString())
+
+        val sensors = mutableListOf<Sensor>()
 
         statesService.characteristics.forEachIndexed { i, it ->
             sensors += loadSensor(it, i, enabledEncRaw)
@@ -111,8 +111,16 @@ class BleServerConnImpl(
     private suspend fun loadSensor(chara: DiscoveredCharacteristic, charaIndex: Int, enabledEncRaw: ByteArray): Sensor {
         val nameDsc = chara.descriptors.firstOrNull { it.descriptorUuid.toString() == CUD_DSC_UUID }
         val name = if (nameDsc != null) {
+            // иногда телефон читает значение несуществующего дескриптора (из кэша, был удалён на сервере) - после этого
+            // портятся все последующие чтения
             val nameRaw = periph.read(nameDsc)
-            nameRaw.decodeToString()
+            // если нуль-терминатор, то используем номер из характеристики. Нуль-терминатор м.б. из-за ошибок на
+            // сервере (длинное имя) или пустого имени.
+            if (nameRaw.size == 1 && nameRaw[0].toInt() == 0) {
+                extractName(chara.characteristicUuid)
+            } else {
+                nameRaw.decodeToString()
+            }
         } else {
             extractName(chara.characteristicUuid)
         }
