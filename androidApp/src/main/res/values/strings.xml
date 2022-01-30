@@ -7,6 +7,7 @@
     <string name="no_sensors">No sensors</string>
     <string name="sensor_coeff">Coeff.: %s</string>
     <string name="sensors_enability">Active sensors:</string>
+    <string name="sensors_enability_relay">"Relay: "</string>
     <string name="no_events">No events</string>
     <string name="system_time">System time</string>
     <string name="system_conf">Сonf</string>
@@ -31,7 +32,10 @@
     <string name="sensor_state_bad">failure</string>
     <string name="sensor_state_good">normal</string>
     <string name="sensor_state_unknown">unknown</string>
-    <string name="sensor_state_unsopported">unsupp. (%d)</string>
+    <string name="sensor_state_timeout">timeout</string>
+    <string name="sensor_state_unsupported">unsupp. (%d)</string>
+    <string name="sensor_state_bad_relay">off</string>
+    <string name="sensor_state_good_relay">on</string>
     <string name="server_sensors">Sensors</string>
     <string name="server_history">History</string>
     <string name="server_conf">Conf</string>

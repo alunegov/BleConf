@@ -22,6 +22,8 @@ import com.github.alunegov.bleconf.android.R
 import com.github.alunegov.bleconf.android.ServerScreen
 import com.github.alunegov.bleconf.android.ServerViewModel
 import com.github.alunegov.bleconf.android.domain.HistoryEvent
+import com.github.alunegov.bleconf.android.domain.SensorsMaskV1
+import com.github.alunegov.bleconf.android.domain.SensorsMaskV2
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.text.DateFormat
@@ -136,8 +138,8 @@ fun ServerHistoryScreenPreview() {
         serverName = "Server",
         model = HistoryModel(
             events = listOf(
-                HistoryEvent(2, 0b00000000),
-                HistoryEvent(1, 0b00100100),
+                HistoryEvent(2, 0b0000000000000000, SensorsMaskV2),
+                HistoryEvent(1, 0b1000000000100100, SensorsMaskV1),
             ),
             errorText = "Error",
         ),
@@ -187,42 +189,62 @@ fun ServerHistoryItem(event: HistoryEvent) {
 
         Spacer(Modifier.size(8.dp))
 
+        val enabledColor = SwitchDefaults.colors().trackColor(
+            enabled = true,
+            checked = true
+        ).value
+        val disabledColor = SwitchDefaults.colors().trackColor(
+            enabled = true,
+            checked = false
+        ).value
+
         Row(
             modifier = Modifier.fillMaxWidth(),
         ) {
-            val enabledColor = SwitchDefaults.colors().trackColor(
-                enabled = true,
-                checked = true
-            ).value
-            val disabledColor = SwitchDefaults.colors().trackColor(
-                enabled = true,
-                checked = false
-            ).value
-
             for (i in 0..7) {
-                Spacer(Modifier.size(8.dp))
+                if ((event.sensorsMask and (1 shl i)) != 0) {
+                    Spacer(Modifier.size(8.dp))
 
-                Column(
-                    modifier = Modifier.weight(1.0f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    val en = (event.en and (1 shl i)) != 0
-
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .background(if (en) enabledColor else disabledColor),
+                    Column(
+                        modifier = Modifier.weight(1.0f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Text(
-                            text = (i + 1).toString(),
-                            modifier = Modifier.defaultMinSize(24.dp),
-                            color = if (en) MaterialTheme.colors.onSecondary else MaterialTheme.colors.onSurface,
-                            textAlign = TextAlign.Center,
-                        )
+                        val en = (event.sensorsEnability and (1 shl i)) != 0
+
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .background(if (en) enabledColor else disabledColor),
+                        ) {
+                            Text(
+                                text = (i + 1).toString(),
+                                modifier = Modifier.defaultMinSize(24.dp),
+                                color = if (en) MaterialTheme.colors.onSecondary else MaterialTheme.colors.onSurface,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
                     }
                 }
             }
+        }
+
+        Spacer(Modifier.size(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(stringResource(R.string.sensors_enability_relay))
+
+            val en = if ((event.sensorsMask and (1 shl 15)) != 0) {
+                (event.sensorsEnability and (1 shl 15)) != 0
+            } else {
+                true
+            }
+            Text(
+                text = stringResource(if (en) R.string.sensor_state_good_relay else R.string.sensor_state_bad_relay),
+                color = if (en) enabledColor else disabledColor,
+            )
         }
     }
 }

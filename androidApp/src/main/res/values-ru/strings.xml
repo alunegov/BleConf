@@ -7,6 +7,7 @@
     <string name="no_sensors">Датчики отсутствуют</string>
     <string name="sensor_coeff">Коэфф.: %s</string>
     <string name="sensors_enability">Активные датчики:</string>
+    <string name="sensors_enability_relay">"Реле: "</string>
     <string name="no_events">События отсутствуют</string>
     <string name="system_time">Системное время</string>
     <string name="system_conf">Настройки</string>
@@ -31,7 +32,10 @@
     <string name="sensor_state_bad">авария</string>
     <string name="sensor_state_good">норма</string>
     <string name="sensor_state_unknown">неопред.</string>
-    <string name="sensor_state_unsopported">неподдерж. (%d)</string>
+    <string name="sensor_state_timeout">таймаут</string>
+    <string name="sensor_state_unsupported">неподдерж. (%d)</string>
+    <string name="sensor_state_bad_relay">выкл.</string>
+    <string name="sensor_state_good_relay">вкл.</string>
     <string name="server_sensors">Датчики</string>
     <string name="server_history">История</string>
     <string name="server_conf">Настройки</string>

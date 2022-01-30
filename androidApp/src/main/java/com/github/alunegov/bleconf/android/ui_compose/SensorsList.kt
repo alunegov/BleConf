@@ -143,14 +143,15 @@ fun SensorsListScreenPreview() {
         serverName = "Server",
         sensorsModel = SensorsModel(
             sensors = listOf(
-                Sensor("1", "Sensor 1", true, 0, null),
-                Sensor("2", "Sensor 2", true, 1, null),
-                Sensor("3", "Sensor 3", true, 2, null),
-                Sensor("4", "Sensor 4", false, 0, null),
-                Sensor("5", "Sensor 5", false, 1, null),
-                Sensor("6", "Sensor 6", false, 2, null),
-                Sensor("7", "Sensor 7", true, 0, null),
-                Sensor("8", "Sensor 8", true, 0, 1.13f),
+                Sensor("1", "Sensor 1", true, 0, null, false, 0),
+                Sensor("2", "Sensor 2", true, 1, null, false, 1),
+                Sensor("3", "Sensor 3", true, 2, null, false, 2),
+                Sensor("4", "Sensor 4", false, 0, null, false, 3),
+                Sensor("5", "Sensor 5", false, 1, null, false, 4),
+                Sensor("6", "Sensor 6", false, 2, null, false, 5),
+                Sensor("7", "Sensor 7", true, 0, null, false, 6),
+                Sensor("8", "Sensor 8", true, 0, 1.13f, false, 7),
+                Sensor("16", "Relay", true, 0, null, true, 15),
             ),
             errorText = "Sensors error",
         ),
@@ -210,6 +211,10 @@ fun SensorItem(
         Spacer(Modifier.size(16.dp))
 
         Column {
+            if (sensor.isRelay) {
+                Divider(modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 8.dp))
+            }
+
             Text(
                 text = sensor.name,
                 style = MaterialTheme.typography.h5,
@@ -224,20 +229,38 @@ fun SensorItem(
                         style = MaterialTheme.typography.body1,
                     )
 
-                    Text(
-                        text = when (sensor.state) {
-                            0 -> stringResource(R.string.sensor_state_bad)
-                            1 -> stringResource(R.string.sensor_state_good)
-                            2 -> stringResource(R.string.sensor_state_unknown)
-                            else -> stringResource(R.string.sensor_state_unsopported, sensor.state)
-                        },
-                        color = when (sensor.state) {
-                            0 -> MaterialTheme.colors.error
-                            2 -> Color.Gray
-                            else -> Color.Companion.Unspecified
-                        },
-                        style = MaterialTheme.typography.body1,
-                    )
+                    if (!sensor.isRelay) {
+                        Text(
+                            text = when (sensor.state) {
+                                0 -> stringResource(R.string.sensor_state_bad)
+                                1 -> stringResource(R.string.sensor_state_good)
+                                2 -> stringResource(R.string.sensor_state_unknown)
+                                4 -> stringResource(R.string.sensor_state_timeout)
+                                else -> stringResource(R.string.sensor_state_unsupported, sensor.state)
+                            },
+                            color = when (sensor.state) {
+                                0, 4 -> MaterialTheme.colors.error
+                                1 -> Color.Companion.Unspecified
+                                2 -> Color.Gray
+                                else -> Color.Gray
+                            },
+                            style = MaterialTheme.typography.body1,
+                        )
+                    } else {
+                        Text(
+                            text = when (sensor.state) {
+                                0, 4 -> stringResource(R.string.sensor_state_bad_relay)
+                                1, 5 -> stringResource(R.string.sensor_state_good_relay)
+                                else -> stringResource(R.string.sensor_state_unsupported, sensor.state)
+                            },
+                            color = when (sensor.state) {
+                                0, 4 -> MaterialTheme.colors.error
+                                1, 5 -> Color.Companion.Unspecified
+                                else -> Color.Gray
+                            },
+                            style = MaterialTheme.typography.body1,
+                        )
+                    }
                 }
 
                 if (sensor.coeff != null) {

@@ -98,11 +98,21 @@ class BleConnImpl(
     override fun getServerConn(id: String, scope: CoroutineScope): BleServerConn {
         logger?.d(TAG, "getServerConn for $id")
         //logger?.d(TAG, "_intServers $_intServers")
+
         // TODO: check id presence
         val adv = _intServers[id]?.adv!!
+
+        val connVer = if (adv.manufacturerData != null) {
+            adv.manufacturerData!!.data[0].toInt() - 0x30
+        } else {
+            1
+        }
+        logger?.d(TAG, "connVer=$connVer")
+
         return BleServerConnImpl(
             adv.name ?: L10n.tr("noname"),
             scope.peripheral(adv),
+            connVer,
             logger,
         )
     }
