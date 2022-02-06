@@ -29,7 +29,7 @@ dependencies {
     // Integration with ViewModels
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0")
     // Integration with Navigation
-    implementation("androidx.navigation:navigation-compose:2.4.0-alpha04")
+    implementation("androidx.navigation:navigation-compose:2.4.0")
     // Accompanist
     implementation("com.google.accompanist:accompanist-permissions:${libs.versions.accompanist.get()}")
     implementation("com.google.accompanist:accompanist-swiperefresh:${libs.versions.accompanist.get()}")

@@ -213,8 +213,8 @@ inline fun <reified VM: ViewModel> NavBackStackEntry.parentViewModel(
     // This always exists since every destination in your graph has a parent
     val parentId = destination.parent!!.id
 
-    // Now get the NavBackStackEntry associated with the parent
-    val parentBackStackEntry = navController.getBackStackEntry(parentId)
+    // Now get the NavBackStackEntry associated with the parent making sure to remember it
+    val parentBackStackEntry = remember { navController.getBackStackEntry(parentId) }
 
     return viewModel(viewModelStoreOwner = parentBackStackEntry, factory = factory)
 }

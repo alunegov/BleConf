@@ -71,11 +71,11 @@ fun createNavigateToRouteClicked(navController: NavController): (String) -> Unit
     return { route: String ->
         //Log.d(TAG, String.format("nav to %s, popUpTo %s", it.route, navController.graph.startDestinationRoute ?: ""))
         navController.navigate(route) {
-            launchSingleTop = true
-            //restoreState = true
             popUpTo(RootScreen.Server.route) {
-                //saveState = true
+                saveState = true
             }
+            launchSingleTop = true
+            restoreState = true
         }
     }
 }
