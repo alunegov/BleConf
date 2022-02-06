@@ -5,7 +5,7 @@
     <string name="unknown_server_name">Неизвестно</string>
     <string name="server_rssi">%d дБ</string>
     <string name="no_sensors">Датчики отсутствуют</string>
-    <string name="sensor_coeff">Коэфф.: %s</string>
+    <string name="sensor_coeff">"Коэфф.: "</string>
     <string name="sensors_enability">Активные датчики:</string>
     <string name="sensors_enability_relay">"Реле: "</string>
     <string name="no_events">События отсутствуют</string>

@@ -223,6 +223,13 @@ fun SensorItem(
             Row(
                 modifier = Modifier.fillMaxWidth()
             ) {
+                val stateValueColor = when (sensor.state) {
+                    0, 4 -> MaterialTheme.colors.error
+                    1 -> Color.Companion.Unspecified
+                    2 -> Color.Gray
+                    else -> Color.Gray
+                }
+
                 Row(modifier = Modifier.weight(1.0f)) {
                     Text(
                         text = stringResource(R.string.sensor_state),
@@ -238,12 +245,7 @@ fun SensorItem(
                                 4 -> stringResource(R.string.sensor_state_timeout)
                                 else -> stringResource(R.string.sensor_state_unsupported, sensor.state)
                             },
-                            color = when (sensor.state) {
-                                0, 4 -> MaterialTheme.colors.error
-                                1 -> Color.Companion.Unspecified
-                                2 -> Color.Gray
-                                else -> Color.Gray
-                            },
+                            color = stateValueColor,
                             style = MaterialTheme.typography.body1,
                         )
                     } else {
@@ -264,12 +266,18 @@ fun SensorItem(
                 }
 
                 if (sensor.coeff != null) {
-                    val formattedCoeff = NumberFormat.getInstance().format(sensor.coeff)
-                    Text(
-                        text = stringResource(R.string.sensor_coeff, formattedCoeff),
-                        modifier = Modifier.weight(1.0f),
-                        style = MaterialTheme.typography.body1,
-                    )
+                    Row(modifier = Modifier.weight(1.0f)) {
+                        Text(
+                            text = stringResource(R.string.sensor_coeff),
+                            style = MaterialTheme.typography.body1,
+                        )
+
+                        Text(
+                            text = NumberFormat.getInstance().format(sensor.coeff),
+                            color = stateValueColor,
+                            style = MaterialTheme.typography.body1,
+                        )
+                    }
                 }
             }
         }

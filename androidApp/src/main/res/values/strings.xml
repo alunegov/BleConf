@@ -5,7 +5,7 @@
     <string name="unknown_server_name">Unknown</string>
     <string name="server_rssi">%d dB</string>
     <string name="no_sensors">No sensors</string>
-    <string name="sensor_coeff">Coeff.: %s</string>
+    <string name="sensor_coeff">"Coeff.: "</string>
     <string name="sensors_enability">Active sensors:</string>
     <string name="sensors_enability_relay">"Relay: "</string>
     <string name="no_events">No events</string>
