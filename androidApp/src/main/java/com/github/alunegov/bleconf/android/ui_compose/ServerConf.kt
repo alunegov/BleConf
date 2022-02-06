@@ -228,6 +228,8 @@ fun ServerConfEdit(
     val adcImbaMinCurrent = remember(confModel.conf.adcImbaMinCurrent) { mutableStateOf(confModel.conf.adcImbaMinCurrent.toString()) }
     val adcImbaMinSwing = remember(confModel.conf.adcImbaMinSwing) { mutableStateOf(confModel.conf.adcImbaMinSwing.toString()) }
     val adcImbaThreshold = remember(confModel.conf.adcImbaThreshold) { mutableStateOf(confModel.conf.adcImbaThreshold.toString()) }
+    val modbusSlaveAddr = remember(confModel.conf.modbusSlaveAddr) { mutableStateOf(confModel.conf.modbusSlaveAddr.toString()) }
+    val modbusBaudrate = remember(confModel.conf.modbusBaudrate) { mutableStateOf(confModel.conf.modbusBaudrate.toString()) }
 
     val (
         adcCoeffFocus,
@@ -237,6 +239,8 @@ fun ServerConfEdit(
         adcImbaMinCurrentFocus,
         adcImbaMinSwingFocus,
         adcImbaThresholdFocus,
+        modbusSlaveAddrFocus,
+        modbusBaudrateFocus,
         applyFocus,
     ) = remember { FocusRequester.createRefs() }
 
@@ -324,13 +328,28 @@ fun ServerConfEdit(
                     stringResource(R.string.adc_imba_threshold),
                     stringResource(R.string.adc_imba_threshold_helper),
                     adcImbaThresholdFocus,
+                    modbusSlaveAddrFocus
+                ),
+                ConfItem(
+                    modbusSlaveAddr,
+                    stringResource(R.string.modbus_slave_addr),
+                    stringResource(R.string.modbus_slave_addr_helper),
+                    modbusSlaveAddrFocus,
+                    modbusBaudrateFocus
+                ),ConfItem(
+                    modbusBaudrate,
+                    stringResource(R.string.modbus_baudrate),
+                    stringResource(R.string.modbus_baudrate_helper),
+                    modbusBaudrateFocus,
                     applyFocus
                 ),
             ).forEach { confItem ->
                 val helperText: @Composable (() -> Unit)? =
                     if (confItem.helper.isNotEmpty()) {
                         @Composable { Text(confItem.helper) }
-                    } else null
+                    } else {
+                        null
+                    }
 
                 OutlinedTextFieldWithHelper(
                     value = confItem.item.value,
@@ -370,6 +389,8 @@ fun ServerConfEdit(
                             adcImbaMinCurrent.value.toFloat(),
                             adcImbaMinSwing.value.toFloat(),
                             adcImbaThreshold.value.toFloat(),
+                            modbusSlaveAddr.value.toUByte(),
+                            modbusBaudrate.value.toUInt(),
                         ).also { onSetConfClicked(it) }
                     } catch (e: Exception) {
                         Log.d(TAG, e.toString())

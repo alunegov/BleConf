@@ -28,6 +28,10 @@
     <string name="adc_imba_min_swing_helper"/>
     <string name="adc_imba_threshold">AdcImbaThreshold</string>
     <string name="adc_imba_threshold_helper"/>
+    <string name="modbus_slave_addr">ModbusSlaveAddr</string>
+    <string name="modbus_slave_addr_helper"/>
+    <string name="modbus_baudrate">ModbusBaudrate</string>
+    <string name="modbus_baudrate_helper"/>
     <string name="sensor_state">"State: "</string>
     <string name="sensor_state_bad">failure</string>
     <string name="sensor_state_good">normal</string>

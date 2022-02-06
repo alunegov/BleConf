@@ -15,7 +15,7 @@ private const val TAG = "BleServerConnImpl"
 
 // код ble-сервиса настройки
 internal const val CONF_SERVICE_UUID = "95f78395-3a98-45a3-9cc7-d71cfded4f07"
-// код ble-характеристики набора активных датчиков (g...Sensors[].enabled кодируется в uint8_t)
+// код ble-характеристики набора активных датчиков (g...Sensors[].enabled кодируется в uint16)
 internal const val CONF_ENABLED_CH_UUID = "95f78395-3a98-45a3-9cc7-d71cfded4f17"
 // код ble-характеристики истории изменений (кодируется в строку, только чтение)
 internal const val CONF_UPDATES_CH_UUID = "95f78395-3a98-45a3-9cc7-d71cfded4f27"
@@ -246,23 +246,42 @@ class BleServerConnImpl(
             val adcImbaMinCurrent = it.getFloat()
             val adcImbaMinSwing = it.getFloat()
             val adcImbaThreshold = it.getFloat()
+            var modbusSlaveAddr: UByte = 1u
+            var modbusBaudrate: UInt = 9600u
+            if (connVer == 2) {
+                modbusSlaveAddr = it.get().toUByte()
+                modbusBaudrate = it.getInt().toUInt()
+            }
 
-            Conf(adcCoeff, adcEmonNum, adcAverNum, adcImbaNum, adcImbaMinCurrent, adcImbaMinSwing, adcImbaThreshold)
+            Conf(adcCoeff, adcEmonNum, adcAverNum, adcImbaNum, adcImbaMinCurrent, adcImbaMinSwing, adcImbaThreshold,
+                    modbusSlaveAddr, modbusBaudrate)
         }
     }
 
     override suspend fun setConf(conf: Conf) {
         logger?.d(TAG, "setConf")
 
-        val confRaw = ByteBuffer.allocate(4 + 4 + 4 + 4 + 4 + 4 + 4).order(ByteOrder.LITTLE_ENDIAN)
-            .putFloat(conf.adcCoeff)
-            .putInt(conf.adcEmonNum)
-            .putInt(conf.adcAverNum)
-            .putInt(conf.adcImbaNum)
-            .putFloat(conf.adcImbaMinCurrent)
-            .putFloat(conf.adcImbaMinSwing)
-            .putFloat(conf.adcImbaThreshold)
-            .array()
+        // v1 - 28 byte, v2 - 33 byte
+        val confSize = when (connVer) {
+            1 -> 4 + 4 + 4 + 4 + 4 + 4 + 4
+            else -> 4 + 4 + 4 + 4 + 4 + 4 + 4 + 1 + 4
+        }
+
+        val confRaw = ByteBuffer.allocate(confSize).order(ByteOrder.LITTLE_ENDIAN).run {
+            putFloat(conf.adcCoeff)
+            putInt(conf.adcEmonNum)
+            putInt(conf.adcAverNum)
+            putInt(conf.adcImbaNum)
+            putFloat(conf.adcImbaMinCurrent)
+            putFloat(conf.adcImbaMinSwing)
+            putFloat(conf.adcImbaThreshold)
+            if (connVer == 2) {
+                put(conf.modbusSlaveAddr.toByte())
+                putInt(conf.modbusBaudrate.toInt())
+            }
+
+            array()
+        }
 
         periph.write(characteristicOf(CONF_SERVICE_UUID, CONF_CONF_CH_UUID), confRaw, WriteType.WithResponse)
     }

@@ -13,4 +13,6 @@ data class Conf(
     val adcImbaMinCurrent: Float = 0.5f,
     val adcImbaMinSwing: Float = 0.2f,
     val adcImbaThreshold: Float = 0.1f,
+    val modbusSlaveAddr: UByte = 1u,
+    val modbusBaudrate: UInt = 9600u,
 )
