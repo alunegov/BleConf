@@ -12,8 +12,8 @@ dependencies {
     //implementation 'androidx.core:core-ktx:1.3.2'
     implementation("androidx.appcompat:appcompat:1.4.1")
     implementation("com.google.android.material:material:1.4.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
-    implementation("androidx.compose.ui:ui:1.0.5")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.1")
+    implementation("androidx.compose.ui:ui:1.1.0")
     // Tooling support (Previews, etc.)
     implementation("androidx.compose.ui:ui-tooling-preview:${libs.versions.compose.get()}")
     debugImplementation("androidx.compose.ui:ui-tooling:${libs.versions.compose.get()}")
@@ -27,9 +27,9 @@ dependencies {
     // Integration with activities
     implementation("androidx.activity:activity-compose:1.4.0")
     // Integration with ViewModels
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1")
     // Integration with Navigation
-    implementation("androidx.navigation:navigation-compose:2.4.0")
+    implementation("androidx.navigation:navigation-compose:2.4.1")
     // Accompanist
     implementation("com.google.accompanist:accompanist-permissions:${libs.versions.accompanist.get()}")
     implementation("com.google.accompanist:accompanist-swiperefresh:${libs.versions.accompanist.get()}")
