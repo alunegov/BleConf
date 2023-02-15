@@ -1,9 +1,7 @@
 package com.github.alunegov.bleconf.android.services
 
 import kotlinx.coroutines.flow.Flow
-import com.github.alunegov.bleconf.android.domain.Conf
-import com.github.alunegov.bleconf.android.domain.HistoryEvent
-import com.github.alunegov.bleconf.android.domain.Sensor
+import com.github.alunegov.bleconf.android.domain.*
 
 /**
  * Абстракция подключения к серверу (BLE-серверу)
@@ -57,12 +55,12 @@ interface BleServerConn {
     /**
      * Возвращает настройки сервера.
      */
-    suspend fun getConf(): Conf
+    suspend fun getConf(): ConfBase
 
     /**
      * Задаёт настройки сервера.
      */
-    suspend fun setConf(conf: Conf)
+    suspend fun setConf(conf: ConfBase)
 
     /**
      * Возвращает время сервера.

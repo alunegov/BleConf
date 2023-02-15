@@ -22,12 +22,16 @@
     <string name="adc_aver_num_helper"/>
     <string name="adc_imba_num">Количество точек Irms для детектирования экстремумов</string>
     <string name="adc_imba_num_helper">Если в течении этого времени не происходит изменения минимума или максимума, то считаем что достигли локального экстремума.</string>
+    <string name="imba_n">Число качаний, кач/мин</string>
+    <string name="imba_n_helper"/>
     <string name="adc_imba_min_current">Минимальное значение Irms, А</string>
     <string name="adc_imba_min_current_helper">Значение Irms меньше этого значения - неопределённое состояние.</string>
     <string name="adc_imba_min_swing">Минимальный размах Irms, А</string>
     <string name="adc_imba_min_swing_helper">Размах Irms меньше этого значения - неопределённое состояние.</string>
     <string name="adc_imba_threshold">Пороговое значение небаланса</string>
+    <string name="adc_imba_threshold_perc">Пороговое значение небаланса, %</string>
     <string name="adc_imba_threshold_helper">Значение коэффициента больше этого значения - небаланс.</string>
+    <string name="imba_mode">Метод расчёта небаланса</string>
     <string name="modbus_slave_addr">Адрес ведомого устройства Modbus</string>
     <string name="modbus_slave_addr_helper">Адрес может изменяться от 1 до 247.</string>
     <string name="modbus_baudrate">Скорость связи, бод</string>

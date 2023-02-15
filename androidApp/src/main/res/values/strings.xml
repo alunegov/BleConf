@@ -22,12 +22,16 @@
     <string name="adc_aver_num_helper"/>
     <string name="adc_imba_num">AdcImbaNum</string>
     <string name="adc_imba_num_helper"/>
+    <string name="imba_n">ImbaN</string>
+    <string name="imba_n_helper"/>
     <string name="adc_imba_min_current">AdcImbaMinCurrent</string>
     <string name="adc_imba_min_current_helper"/>
     <string name="adc_imba_min_swing">AdcImbaMinSwing</string>
     <string name="adc_imba_min_swing_helper"/>
     <string name="adc_imba_threshold">AdcImbaThreshold</string>
+    <string name="adc_imba_threshold_perc">AdcImbaThreshold, %</string>
     <string name="adc_imba_threshold_helper"/>
+    <string name="imba_mode">ImbaMode</string>
     <string name="modbus_slave_addr">ModbusSlaveAddr</string>
     <string name="modbus_slave_addr_helper"/>
     <string name="modbus_baudrate">ModbusBaudrate</string>

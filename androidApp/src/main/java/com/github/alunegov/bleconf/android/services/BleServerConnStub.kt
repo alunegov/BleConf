@@ -30,7 +30,7 @@ class BleServerConnStub(
         HistoryEvent(System.currentTimeMillis() / 1000 - 13000, 0b1000000011000001, SensorsMaskV2Pre),
     )
 
-    private var conf = Conf()
+    private var conf = ConfV3()
 
     private var time = System.currentTimeMillis() / 1000
 
@@ -76,10 +76,10 @@ class BleServerConnStub(
 
     override suspend fun getHistory(): List<HistoryEvent> = history.reversed()
 
-    override suspend fun getConf(): Conf = conf
+    override suspend fun getConf(): ConfBase = conf
 
-    override suspend fun setConf(conf: Conf) {
-        this.conf = conf
+    override suspend fun setConf(conf: ConfBase) {
+        this.conf = conf as ConfV3
     }
 
     override suspend fun getTime(): Long = time

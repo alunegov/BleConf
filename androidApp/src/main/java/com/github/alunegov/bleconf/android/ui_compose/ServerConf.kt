@@ -3,6 +3,7 @@ package com.github.alunegov.bleconf.android.ui_compose
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -29,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.github.alunegov.bleconf.android.*
 import com.github.alunegov.bleconf.android.R
-import com.github.alunegov.bleconf.android.domain.Conf
+import com.github.alunegov.bleconf.android.domain.*
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.launch
@@ -105,7 +106,7 @@ fun ServerConfEntryScreen(
     onAuthClicked: (String) -> Unit,
     onPwdChanged: () -> Unit,
     onConfRefresh: () -> Unit,
-    onSetConfClicked: (Conf) -> Unit,
+    onSetConfClicked: (ConfBase) -> Unit,
     onBackClicked: () -> Unit,
     currentRoute: String?,
     onRouteClicked: (String) -> Unit,
@@ -132,17 +133,35 @@ fun ServerConfEntryScreen(
             modifier = Modifier.padding(bottom = contentPadding.calculateBottomPadding()),
         ) {
             if (confModel.isAuthed) {
-                ServerConfEdit(
-                    confModel,
-                    timeModel,
-                    onConfRefresh,
-                    onSetConfClicked,
-                    onConfValidateError = {
+                when (confModel.conf) {
+                    is ConfV2 -> ServerConfV2Edit(
+                        confModel,
+                        timeModel,
+                        onConfRefresh,
+                        onSetConfClicked,
+                        onConfValidateError = {
+                            scope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(it)
+                            }
+                        },
+                    )
+                    is ConfV3 -> ServerConfV3Edit(
+                        confModel,
+                        timeModel,
+                        onConfRefresh,
+                        onSetConfClicked,
+                        onConfValidateError = {
+                            scope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(it)
+                            }
+                        },
+                    )
+                    /*else -> {
                         scope.launch {
-                            scaffoldState.snackbarHostState.showSnackbar(it)
+                            scaffoldState.snackbarHostState.showSnackbar("ConfV")
                         }
-                    },
-                )
+                    }*/
+                }
             } else {
                 ServerConfAuth(
                     onAuthClicked,
@@ -161,7 +180,7 @@ fun ServerConfEntryScreenPreview_Authed() {
         serverName = "Server",
         confModel = ConfModel(
             isAuthed = true,
-            conf = Conf(),
+            conf = ConfV3(),
             errorText = "Conf error",
         ),
         timeModel = TimeModel(
@@ -186,7 +205,7 @@ fun ServerConfEntryScreenPreview_NotAuthed() {
         serverName = "Server",
         confModel = ConfModel(
             isAuthed = false,
-            conf = Conf(),
+            conf = ConfV3(),
             errorText = "Conf error",
         ),
         timeModel = TimeModel(
@@ -214,13 +233,15 @@ fun ServerConfEntryScreenPreview_NotAuthed() {
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ServerConfEdit(
+fun ServerConfV2Edit(
     confModel: ConfModel,
     timeModel: TimeModel,
     onConfRefresh: () -> Unit,
-    onSetConfClicked: (Conf) -> Unit,
+    onSetConfClicked: (ConfBase) -> Unit,
     onConfValidateError: (String) -> Unit,
 ) {
+    if (confModel.conf !is ConfV2) return
+
     val adcCoeff = remember(confModel.conf.adcCoeff) { mutableStateOf(confModel.conf.adcCoeff.toString()) }
     val adcEmonNum = remember(confModel.conf.adcEmonNum) { mutableStateOf(confModel.conf.adcEmonNum.toString()) }
     val adcAverNum = remember(confModel.conf.adcAverNum) { mutableStateOf(confModel.conf.adcAverNum.toString()) }
@@ -336,7 +357,8 @@ fun ServerConfEdit(
                     stringResource(R.string.modbus_slave_addr_helper),
                     modbusSlaveAddrFocus,
                     modbusBaudrateFocus
-                ),ConfItem(
+                ),
+                ConfItem(
                     modbusBaudrate,
                     stringResource(R.string.modbus_baudrate),
                     stringResource(R.string.modbus_baudrate_helper),
@@ -381,7 +403,7 @@ fun ServerConfEdit(
                 onClick = {
                     // TODO: pre validate Conf data
                     try {
-                        Conf(
+                        ConfV2(
                             adcCoeff.value.toFloat(),
                             adcEmonNum.value.toInt(),
                             adcAverNum.value.toInt(),
@@ -389,6 +411,266 @@ fun ServerConfEdit(
                             adcImbaMinCurrent.value.toFloat(),
                             adcImbaMinSwing.value.toFloat(),
                             adcImbaThreshold.value.toFloat(),
+                            modbusSlaveAddr.value.toUByte(),
+                            modbusBaudrate.value.toUInt(),
+                        ).also { onSetConfClicked(it) }
+                    } catch (e: Exception) {
+                        Log.d(TAG, e.toString())
+                        onConfValidateError(e.message ?: e.toString())
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .widthIn(250.dp)
+                    .padding(8.dp)
+                    .focusRequester(applyFocus),
+            ) {
+                Text(stringResource(R.string.apply_conf))
+            }
+        }
+    }
+}
+
+/**
+ * Настройки сервера.
+ *
+ * @param confModel Модель настроек.
+ * @param timeModel Модель системного времени сервера.
+ * @param onConfRefresh Обработчик обновления/загрузки настроек.
+ * @param onSetConfClicked Обработчик задания настроек.
+ * @param onConfValidateError Обработчик ошибки валидации значений.
+ */
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun ServerConfV3Edit(
+    confModel: ConfModel,
+    timeModel: TimeModel,
+    onConfRefresh: () -> Unit,
+    onSetConfClicked: (ConfBase) -> Unit,
+    onConfValidateError: (String) -> Unit,
+) {
+    if (confModel.conf !is ConfV3) return
+
+    val adcCoeff = remember(confModel.conf.adcCoeff) { mutableStateOf(confModel.conf.adcCoeff.toString()) }
+    val adcEmonNum = remember(confModel.conf.adcEmonNum) { mutableStateOf(confModel.conf.adcEmonNum.toString()) }
+    val adcAverNum = remember(confModel.conf.adcAverNum) { mutableStateOf(confModel.conf.adcAverNum.toString()) }
+    val imbaN = remember(confModel.conf.imbaN) { mutableStateOf(confModel.conf.imbaN.toString()) }
+    val adcImbaMinCurrent = remember(confModel.conf.adcImbaMinCurrent) { mutableStateOf(confModel.conf.adcImbaMinCurrent.toString()) }
+    val adcImbaMinSwing = remember(confModel.conf.adcImbaMinSwing) { mutableStateOf(confModel.conf.adcImbaMinSwing.toString()) }
+    val adcImbaThreshold = remember(confModel.conf.adcImbaThreshold) { mutableStateOf(confModel.conf.adcImbaThreshold.toString()) }
+    val imbaMode = remember(confModel.conf.imbaMode) { mutableStateOf(confModel.conf.imbaMode) }
+    val modbusSlaveAddr = remember(confModel.conf.modbusSlaveAddr) { mutableStateOf(confModel.conf.modbusSlaveAddr.toString()) }
+    val modbusBaudrate = remember(confModel.conf.modbusBaudrate) { mutableStateOf(confModel.conf.modbusBaudrate.toString()) }
+
+    val (
+        adcCoeffFocus,
+        adcEmonNumFocus,
+        adcAverNumFocus,
+        imbaNFocus,
+        adcImbaMinCurrentFocus,
+        adcImbaMinSwingFocus,
+        adcImbaThresholdFocus,
+        //imbaModeFocus,
+        modbusSlaveAddrFocus,
+        modbusBaudrateFocus,
+        applyFocus,
+    ) = remember { FocusRequester.createRefs() }
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+    //val focusManager = LocalFocusManager.current
+
+    val swipeRefreshState = rememberSwipeRefreshState(confModel.loading or timeModel.loading)
+
+    SwipeRefresh(
+        state = swipeRefreshState,
+        onRefresh = onConfRefresh,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+        ) {
+            Text(
+                text = stringResource(R.string.system_time),
+                modifier = Modifier.padding(8.dp),
+                style = MaterialTheme.typography.h5,
+            )
+
+            Divider()
+
+            val formattedTime = DateFormat.getDateTimeInstance().format(Date(timeModel.time * 1000))
+            Text(
+                text = formattedTime,
+                modifier = Modifier.padding(8.dp),
+            )
+
+            Text(
+                text = stringResource(R.string.system_conf),
+                modifier = Modifier.padding(8.dp),
+                style = MaterialTheme.typography.h5,
+            )
+
+            Divider()
+
+            listOf(
+                ConfItem(
+                    adcCoeff,
+                    stringResource(R.string.adc_coeff),
+                    stringResource(R.string.adc_coeff_helper),
+                    adcCoeffFocus,
+                    adcEmonNumFocus,
+                ),
+                ConfItem(
+                    adcEmonNum,
+                    stringResource(R.string.adc_emon_num),
+                    stringResource(R.string.adc_emon_num_helper),
+                    adcEmonNumFocus,
+                    adcAverNumFocus,
+                ),
+                ConfItem(
+                    adcAverNum,
+                    stringResource(R.string.adc_aver_num),
+                    stringResource(R.string.adc_aver_num_helper),
+                    adcAverNumFocus,
+                    imbaNFocus,
+                ),
+                ConfItem(
+                    imbaN,
+                    stringResource(R.string.imba_n),
+                    stringResource(R.string.imba_n_helper),
+                    imbaNFocus,
+                    adcImbaMinCurrentFocus,
+                ),
+                ConfItem(
+                    adcImbaMinCurrent,
+                    stringResource(R.string.adc_imba_min_current),
+                    stringResource(R.string.adc_imba_min_current_helper),
+                    adcImbaMinCurrentFocus,
+                    adcImbaMinSwingFocus,
+                ),
+                ConfItem(
+                    adcImbaMinSwing,
+                    stringResource(R.string.adc_imba_min_swing),
+                    stringResource(R.string.adc_imba_min_swing_helper),
+                    adcImbaMinSwingFocus,
+                    adcImbaThresholdFocus,
+                ),
+                ConfItem(
+                    adcImbaThreshold,
+                    stringResource(R.string.adc_imba_threshold_perc),
+                    stringResource(R.string.adc_imba_threshold_helper),
+                    adcImbaThresholdFocus,
+                    modbusSlaveAddrFocus,
+                ),
+            ).forEach { confItem ->
+                OutlinedTextFieldWithHelper(
+                    value = confItem.item.value,
+                    onValueChange = { confItem.item.value = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .focusRequester(confItem.focusRequester),
+                    enabled = if (confItem.item == adcImbaMinSwing) AdcImbaMode.Imba1 == imbaMode.value else true,
+                    label = { Text(confItem.label) },
+                    helper = if (confItem.helper.isNotEmpty()) { @Composable { Text(confItem.helper) } } else null,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next,
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = {
+                            if (confItem.nextFocusRequester == applyFocus) {
+                                keyboardController?.hide()
+                                //focusManager.clearFocus()
+                            }
+                            confItem.nextFocusRequester.requestFocus()
+                        },
+                    ),
+                    singleLine = true,
+                )
+            }
+
+            Text(stringResource(R.string.imba_mode), Modifier.padding(8.dp))
+
+            // ref AdcImbaMode
+            listOf(
+                "1 (максимумы, по точкам)",
+                "2 (максимумы, по массивам)",
+                "3 (площади, по массивам)",
+            ).forEachIndexed { index, s ->
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .selectable(
+                            selected = index == imbaMode.value.ordinal,
+                            onClick = { imbaMode.value = AdcImbaMode.fromInt(index) },
+                        )
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    RadioButton(
+                        selected = index == imbaMode.value.ordinal,
+                        onClick = { imbaMode.value = AdcImbaMode.fromInt(index) },
+                    )
+
+                    Text(s, Modifier.padding(start = 16.dp))
+                }
+            }
+
+            listOf(
+                ConfItem(
+                    modbusSlaveAddr,
+                    stringResource(R.string.modbus_slave_addr),
+                    stringResource(R.string.modbus_slave_addr_helper),
+                    modbusSlaveAddrFocus,
+                    modbusBaudrateFocus,
+                ),
+                ConfItem(
+                    modbusBaudrate,
+                    stringResource(R.string.modbus_baudrate),
+                    stringResource(R.string.modbus_baudrate_helper),
+                    modbusBaudrateFocus,
+                    applyFocus,
+                ),
+            ).forEach { confItem ->
+                OutlinedTextFieldWithHelper(
+                    value = confItem.item.value,
+                    onValueChange = { confItem.item.value = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .focusRequester(confItem.focusRequester),
+                    label = { Text(confItem.label) },
+                    helper = if (confItem.helper.isNotEmpty()) { @Composable { Text(confItem.helper) } } else null,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next,
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = {
+                            if (confItem.nextFocusRequester == applyFocus) {
+                                keyboardController?.hide()
+                                //focusManager.clearFocus()
+                            }
+                            confItem.nextFocusRequester.requestFocus()
+                        },
+                    ),
+                    singleLine = true,
+                )
+            }
+
+            Button(
+                onClick = {
+                    // TODO: pre validate Conf data
+                    try {
+                        ConfV3(
+                            adcCoeff.value.toFloat(),
+                            adcEmonNum.value.toInt(),
+                            adcAverNum.value.toInt(),
+                            imbaN.value.toFloat(),
+                            adcImbaMinCurrent.value.toFloat(),
+                            adcImbaMinSwing.value.toFloat(),
+                            adcImbaThreshold.value.toFloat(),
+                            imbaMode.value,
                             modbusSlaveAddr.value.toUByte(),
                             modbusBaudrate.value.toUInt(),
                         ).also { onSetConfClicked(it) }

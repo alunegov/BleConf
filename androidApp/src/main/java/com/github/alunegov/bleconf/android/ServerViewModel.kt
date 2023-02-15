@@ -9,9 +9,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import com.github.alunegov.bleconf.android.domain.Conf
-import com.github.alunegov.bleconf.android.domain.HistoryEvent
-import com.github.alunegov.bleconf.android.domain.Sensor
+import com.github.alunegov.bleconf.android.domain.*
 import com.github.alunegov.bleconf.android.l10n.L10n
 import com.github.alunegov.bleconf.android.services.BleConn
 import kotlin.math.abs
@@ -62,7 +60,7 @@ data class HistoryModel(
  */
 data class ConfModel(
     val isAuthed: Boolean = false,
-    val conf: Conf = Conf(),
+    val conf: ConfBase = ConfBase(),
     val errorText: String = "",
     val loading: Boolean = false,
 )
@@ -294,7 +292,7 @@ class ServerViewModel(
     /**
      * Задаёт настройки.
      */
-    fun setConf(conf: Conf) {
+    fun setConf(conf: ConfBase) {
         Log.d(TAG, "setConf")
         assert(_conf.value.isAuthed)
         assert(!_conf.value.loading)

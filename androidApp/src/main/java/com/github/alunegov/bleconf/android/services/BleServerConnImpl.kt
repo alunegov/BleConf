@@ -233,51 +233,106 @@ class BleServerConnImpl(
         return events
     }
 
-    override suspend fun getConf(): Conf {
+    override suspend fun getConf(): ConfBase {
         logger?.d(TAG, "getConf")
 
         val confRaw = periph.read(characteristicOf(CONF_SERVICE_UUID, CONF_CONF_CH_UUID))
 
         return ByteBuffer.wrap(confRaw).order(ByteOrder.LITTLE_ENDIAN).let {
-            val adcCoeff = it.getFloat()
-            val adcEmonNum = it.getInt()
-            val adcAverNum = it.getInt()
-            val adcImbaNum = it.getInt()
-            val adcImbaMinCurrent = it.getFloat()
-            val adcImbaMinSwing = it.getFloat()
-            val adcImbaThreshold = it.getFloat()
-            var modbusSlaveAddr: UByte = 1u
-            var modbusBaudrate: UInt = 9600u
-            if (connVer == 2) {
-                modbusSlaveAddr = it.get().toUByte()
-                modbusBaudrate = it.getInt().toUInt()
-            }
+            when (connVer) {
+                1 -> {
+                    val adcCoeff = it.getFloat()
+                    val adcEmonNum = it.getInt()
+                    val adcAverNum = it.getInt()
+                    val adcImbaNum = it.getInt()
+                    val adcImbaMinCurrent = it.getFloat()
+                    val adcImbaMinSwing = it.getFloat()
+                    val adcImbaThreshold = it.getFloat()
 
-            Conf(adcCoeff, adcEmonNum, adcAverNum, adcImbaNum, adcImbaMinCurrent, adcImbaMinSwing, adcImbaThreshold,
-                    modbusSlaveAddr, modbusBaudrate)
+                    ConfV1(adcCoeff, adcEmonNum, adcAverNum, adcImbaNum, adcImbaMinCurrent, adcImbaMinSwing, adcImbaThreshold)
+                }
+                2 -> {
+                    val adcCoeff = it.getFloat()
+                    val adcEmonNum = it.getInt()
+                    val adcAverNum = it.getInt()
+                    val adcImbaNum = it.getInt()
+                    val adcImbaMinCurrent = it.getFloat()
+                    val adcImbaMinSwing = it.getFloat()
+                    val adcImbaThreshold = it.getFloat()
+                    val modbusSlaveAddr = it.get().toUByte()
+                    val modbusBaudrate = it.getInt().toUInt()
+
+                    ConfV2(adcCoeff, adcEmonNum, adcAverNum, adcImbaNum, adcImbaMinCurrent, adcImbaMinSwing, adcImbaThreshold,
+                        modbusSlaveAddr, modbusBaudrate)
+                }
+                3 -> {
+                    val adcCoeff = it.getFloat()
+                    val adcEmonNum = it.getInt()
+                    val adcAverNum = it.getInt()
+                    val imbaN = it.getFloat()
+                    val adcImbaMinCurrent = it.getFloat()
+                    val adcImbaMinSwing = it.getFloat()
+                    val adcImbaThreshold = it.getFloat()
+                    val imbaMode = AdcImbaMode.fromInt(it.get().toInt())
+                    val modbusSlaveAddr = it.get().toUByte()
+                    val modbusBaudrate = it.getInt().toUInt()
+
+                    ConfV3(adcCoeff, adcEmonNum, adcAverNum, imbaN, adcImbaMinCurrent, adcImbaMinSwing, adcImbaThreshold,
+                        imbaMode, modbusSlaveAddr, modbusBaudrate)
+                }
+                else -> ConfBase()
+            }
         }
     }
 
-    override suspend fun setConf(conf: Conf) {
+    override suspend fun setConf(conf: ConfBase) {
         logger?.d(TAG, "setConf")
 
-        // v1 - 28 byte, v2 - 33 byte
+        // v1 - 28 bytes, v2 - 33 bytes, v3 - 34 bytes
         val confSize = when (connVer) {
             1 -> 4 + 4 + 4 + 4 + 4 + 4 + 4
-            else -> 4 + 4 + 4 + 4 + 4 + 4 + 4 + 1 + 4
+            2 -> 4 + 4 + 4 + 4 + 4 + 4 + 4 + 1 + 4
+            3 -> 4 + 4 + 4 + 4 + 4 + 4 + 4 + 1 + 1 + 4
+            else -> 0
         }
 
         val confRaw = ByteBuffer.allocate(confSize).order(ByteOrder.LITTLE_ENDIAN).run {
-            putFloat(conf.adcCoeff)
-            putInt(conf.adcEmonNum)
-            putInt(conf.adcAverNum)
-            putInt(conf.adcImbaNum)
-            putFloat(conf.adcImbaMinCurrent)
-            putFloat(conf.adcImbaMinSwing)
-            putFloat(conf.adcImbaThreshold)
-            if (connVer == 2) {
-                put(conf.modbusSlaveAddr.toByte())
-                putInt(conf.modbusBaudrate.toInt())
+            when (conf) {
+                is ConfV1 -> {
+                    assert(connVer == 1)
+                    putFloat(conf.adcCoeff)
+                    putInt(conf.adcEmonNum)
+                    putInt(conf.adcAverNum)
+                    putInt(conf.adcImbaNum)
+                    putFloat(conf.adcImbaMinCurrent)
+                    putFloat(conf.adcImbaMinSwing)
+                    putFloat(conf.adcImbaThreshold)
+                }
+                is ConfV2 -> {
+                    assert(connVer == 2)
+                    putFloat(conf.adcCoeff)
+                    putInt(conf.adcEmonNum)
+                    putInt(conf.adcAverNum)
+                    putInt(conf.adcImbaNum)
+                    putFloat(conf.adcImbaMinCurrent)
+                    putFloat(conf.adcImbaMinSwing)
+                    putFloat(conf.adcImbaThreshold)
+                    put(conf.modbusSlaveAddr.toByte())
+                    putInt(conf.modbusBaudrate.toInt())
+                }
+                is ConfV3 -> {
+                    assert(connVer == 3)
+                    putFloat(conf.adcCoeff)
+                    putInt(conf.adcEmonNum)
+                    putInt(conf.adcAverNum)
+                    putFloat(conf.imbaN)
+                    putFloat(conf.adcImbaMinCurrent)
+                    putFloat(conf.adcImbaMinSwing)
+                    putFloat(conf.adcImbaThreshold)
+                    put(conf.imbaMode.ordinal.toByte())
+                    put(conf.modbusSlaveAddr.toByte())
+                    putInt(conf.modbusBaudrate.toInt())
+                }
             }
 
             array()
